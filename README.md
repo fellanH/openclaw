@@ -1,5 +1,7 @@
 # 🦞 OpenClaw — Personal AI Assistant
 
+> **This is a personal fork** of [OpenClaw](https://github.com/openclaw/openclaw) with a different goal: a **neutral, de-branded** build **optimized for non-technical people** — simpler setup, clearer copy, and minimal branding. For the official project, use npm (`npm install -g openclaw`) or see [openclaw/openclaw](https://github.com/openclaw/openclaw).
+
 <p align="center">
     <picture>
         <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/assets/openclaw-logo-text-dark.png">
@@ -22,6 +24,8 @@
 It answers you on the channels you already use (WhatsApp, Telegram, Slack, Discord, Google Chat, Signal, iMessage, Microsoft Teams, WebChat), plus extension channels like BlueBubbles, Matrix, Zalo, and Zalo Personal. It can speak and listen on macOS/iOS/Android, and can render a live Canvas you control. The Gateway is just the control plane — the product is the assistant.
 
 If you want a personal, single-user assistant that feels local, fast, and always-on, this is it.
+
+**About this fork:** This repo is a **neutral, de-branded** variant aimed at **non-technical users** — simpler setup and wording, fewer assumptions about CLI/dev experience, and minimal product branding. It tracks upstream [OpenClaw](https://github.com/openclaw/openclaw) but is maintained separately.
 
 [Website](https://openclaw.ai) · [Docs](https://docs.openclaw.ai) · [DeepWiki](https://deepwiki.com/openclaw/openclaw) · [Getting Started](https://docs.openclaw.ai/start/getting-started) · [Updating](https://docs.openclaw.ai/install/updating) · [Showcase](https://docs.openclaw.ai/start/showcase) · [FAQ](https://docs.openclaw.ai/start/faq) · [Wizard](https://docs.openclaw.ai/start/wizard) · [Nix](https://github.com/openclaw/nix-clawdbot) · [Docker](https://docs.openclaw.ai/install/docker) · [Discord](https://discord.gg/clawd)
 

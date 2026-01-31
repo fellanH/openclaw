@@ -7,6 +7,8 @@ title: "OpenClaw"
 
 # OpenClaw 🦞
 
+> **This doc set is for a fork** aimed at a neutral, de-branded experience for non-technical users. Official docs: [docs.openclaw.ai](https://docs.openclaw.ai).
+
 > _"EXFOLIATE! EXFOLIATE!"_ — A space lobster, probably
 
 <p align="center">
