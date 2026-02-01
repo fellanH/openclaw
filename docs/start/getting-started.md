@@ -2,19 +2,19 @@
 summary: "Beginner guide: from zero to first message (wizard, auth, channels, pairing)"
 read_when:
   - First time setup from zero
-  - You want the fastest path from install → onboarding → first message
+  - You want the fastest path from install to onboarding to first message
 title: "Getting Started"
 ---
 
 # Getting Started
 
-Goal: go from **zero** → **first working chat** (with sane defaults) as quickly as possible.
+Goal: go from **zero** to **first working chat** (with sane defaults) as quickly as possible.
 
-Fastest chat: open the Control UI (no channel setup needed). Run `openclaw dashboard`
+Fastest chat: open the Control UI (no channel setup needed). Run `cortana dashboard`
 and chat in the browser, or open `http://127.0.0.1:18789/` on the gateway host.
 Docs: [Dashboard](/web/dashboard) and [Control UI](/web/control-ui).
 
-Recommended path: use the **CLI onboarding wizard** (`openclaw onboard`). It sets up:
+Recommended path: use the **CLI onboarding wizard** (`cortana onboard`). It sets up:
 
 - model/auth (OAuth recommended)
 - gateway settings
@@ -47,43 +47,58 @@ run on host, set an explicit per-agent override:
 - Node `>=22`
 - `pnpm` (optional; recommended if you build from source)
 - **Recommended:** Brave Search API key for web search. Easiest path:
-  `openclaw configure --section web` (stores `tools.web.search.apiKey`).
+  `cortana configure --section web` (stores `tools.web.search.apiKey`).
   See [Web tools](/tools/web).
 
 macOS: if you plan to build the apps, install Xcode / CLT. For the CLI + gateway only, Node is enough.
 Windows: use **WSL2** (Ubuntu recommended). WSL2 is strongly recommended; native Windows is untested, more problematic, and has poorer tool compatibility. Install WSL2 first, then run the Linux steps inside WSL. See [Windows (WSL2)](/platforms/windows).
 
-## 1) Install the CLI (recommended)
+## 1) Install from source (this fork)
 
 ```bash
-curl -fsSL https://openclaw.bot/install.sh | bash
+git clone <your-fork-url>
+cd cortana
+./scripts/quickstart.sh
 ```
 
-Installer options (install method, non-interactive, from GitHub): [Install](/install).
+The quickstart script will:
+- Install dependencies (pnpm)
+- Build the project
+- Create a `cortana` shell alias
+- Run the onboarding wizard
 
-Windows (PowerShell):
+After setup, use `cortana <command>` to run your fork.
 
-```powershell
-iwr -useb https://openclaw.ai/install.ps1 | iex
-```
+### Manual setup
 
-Alternative (global install):
+If you prefer to set things up manually:
 
 ```bash
-npm install -g openclaw@latest
+git clone <your-fork-url>
+cd cortana
+
+pnpm install
+pnpm ui:build # auto-installs UI deps on first run
+pnpm build
+
+# Run commands from your local build
+node dist/entry-bootstrap.js onboard --install-daemon
+
+# Or use pnpm (runs TypeScript directly)
+pnpm openclaw onboard --install-daemon
 ```
 
-```bash
-pnpm add -g openclaw@latest
-```
+**Important:** The global `openclaw` command (from `npm install -g openclaw`) runs the upstream npm package, **not your fork**. To run your local fork, use `node dist/entry-bootstrap.js <command>` or `pnpm openclaw <command>` from within the repo directory.
+
+**Node version:** Node 22 is recommended. Node 25+ may show deprecation warnings.
 
 ## 2) Run the onboarding wizard (and install the service)
 
 ```bash
-openclaw onboard --install-daemon
+cortana onboard --install-daemon
 ```
 
-What you’ll choose:
+What you'll choose:
 
 - **Local vs Remote** gateway
 - **Auth**: OpenAI Code (Codex) subscription (OAuth) or API keys. For Anthropic we recommend an API key; `claude setup-token` is also supported.
@@ -108,27 +123,27 @@ Headless/server tip: do OAuth on a normal machine first, then copy `oauth.json` 
 If you installed the service during onboarding, the Gateway should already be running:
 
 ```bash
-openclaw gateway status
+cortana gateway status
 ```
 
 Manual run (foreground):
 
 ```bash
-openclaw gateway --port 18789 --verbose
+cortana gateway --port 18789 --verbose
 ```
 
 Dashboard (local loopback): `http://127.0.0.1:18789/`
 If a token is configured, paste it into the Control UI settings (stored as `connect.params.auth.token`).
 
-⚠️ **Bun warning (WhatsApp + Telegram):** Bun has known issues with these
+**Bun warning (WhatsApp + Telegram):** Bun has known issues with these
 channels. If you use WhatsApp or Telegram, run the Gateway with **Node**.
 
 ## 3.5) Quick verify (2 min)
 
 ```bash
-openclaw status
-openclaw health
-openclaw security audit --deep
+cortana status
+cortana health
+cortana security audit --deep
 ```
 
 ## 4) Pair + connect your first chat surface
@@ -136,10 +151,10 @@ openclaw security audit --deep
 ### WhatsApp (QR login)
 
 ```bash
-openclaw channels login
+cortana channels login
 ```
 
-Scan via WhatsApp → Settings → Linked Devices.
+Scan via WhatsApp Settings Linked Devices.
 
 WhatsApp doc: [WhatsApp](/channels/whatsapp)
 
@@ -151,7 +166,7 @@ The wizard can write tokens/config for you. If you prefer manual config, start w
 - Discord: [Discord](/channels/discord)
 - Mattermost (plugin): [Mattermost](/channels/mattermost)
 
-**Telegram DM tip:** your first DM returns a pairing code. Approve it (see next step) or the bot won’t respond.
+**Telegram DM tip:** your first DM returns a pairing code. Approve it (see next step) or the bot won't respond.
 
 ## 5) DM safety (pairing approvals)
 
@@ -159,26 +174,26 @@ Default posture: unknown DMs get a short code and messages are not processed unt
 If your first DM gets no reply, approve the pairing:
 
 ```bash
-openclaw pairing list whatsapp
-openclaw pairing approve whatsapp <code>
+cortana pairing list whatsapp
+cortana pairing approve whatsapp <code>
 ```
 
 Pairing doc: [Pairing](/start/pairing)
 
 ## From source (development)
 
-If you’re hacking on OpenClaw itself, run from source:
+If you're hacking on Cortana itself, run from source:
 
 ```bash
-git clone https://github.com/openclaw/openclaw.git
-cd openclaw
+git clone <your-fork-url>
+cd cortana
 pnpm install
 pnpm ui:build # auto-installs UI deps on first run
 pnpm build
-openclaw onboard --install-daemon
+cortana onboard --install-daemon
 ```
 
-If you don’t have a global install yet, run the onboarding step via `pnpm openclaw ...` from the repo.
+If you don't have the `cortana` alias yet, run the onboarding step via `pnpm openclaw ...` from the repo.
 `pnpm build` also bundles A2UI assets; if you need to run just that step, use `pnpm canvas:a2ui:bundle`.
 
 Gateway (from this repo):
@@ -192,13 +207,13 @@ node openclaw.mjs gateway --port 18789 --verbose
 In a new terminal, send a test message:
 
 ```bash
-openclaw message send --target +15555550123 --message "Hello from OpenClaw"
+cortana message send --target +15555550123 --message "Hello from Cortana"
 ```
 
-If `openclaw health` shows “no auth configured”, go back to the wizard and set OAuth/key auth — the agent won’t be able to respond without it.
+If `cortana health` shows "no auth configured", go back to the wizard and set OAuth/key auth — the agent won't be able to respond without it.
 
-Tip: `openclaw status --all` is the best pasteable, read-only debug report.
-Health probes: `openclaw health` (or `openclaw status --deep`) asks the running gateway for a health snapshot.
+Tip: `cortana status --all` is the best pasteable, read-only debug report.
+Health probes: `cortana health` (or `cortana status --deep`) asks the running gateway for a health snapshot.
 
 ## Next steps (optional, but great)
 

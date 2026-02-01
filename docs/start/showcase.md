@@ -1,15 +1,15 @@
 ---
 title: "Showcase"
-description: "Real-world OpenClaw projects from the community"
-summary: "Community-built projects and integrations powered by OpenClaw"
+description: "Real-world projects from the OpenClaw community"
+summary: "Community-built projects and integrations from the upstream OpenClaw project"
 ---
 
 # Showcase
 
-Real projects from the community. See what people are building with OpenClaw.
+Real projects from the upstream OpenClaw community. These showcase what's possible with the platform that Cortana is built on.
 
 <Info>
-**Want to be featured?** Share your project in [#showcase on Discord](https://discord.gg/clawd) or [tag @openclaw on X](https://x.com/openclaw).
+**Note:** These projects are from the upstream OpenClaw community. For community links, see [OpenClaw Discord](https://discord.gg/clawd) or [@openclaw on X](https://x.com/openclaw).
 </Info>
 
 ## 🎥 OpenClaw in Action

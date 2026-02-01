@@ -20,7 +20,7 @@ Use these hubs to discover every page, including deep dives and reference docs t
 - [Help](/help)
 - [Configuration](/gateway/configuration)
 - [Configuration examples](/gateway/configuration-examples)
-- [OpenClaw assistant](/start/openclaw)
+- [Cortana setup](/start/cortana)
 - [Showcase](/start/showcase)
 - [Lore](/start/lore)
 

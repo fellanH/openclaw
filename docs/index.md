@@ -1,28 +1,13 @@
 ---
-summary: "Top-level overview of Personal Assistant, features, and purpose"
+summary: "Top-level overview of Cortana, features, and purpose"
 read_when:
-  - Introducing Personal Assistant to newcomers
-title: "Personal Assistant"
+  - Introducing Cortana to newcomers
+title: "Cortana"
 ---
 
-# Personal Assistant
+# Cortana
 
-> **This doc set is for Personal Assistant** — a neutral, de-branded fork for non-technical users. Official docs: [docs.openclaw.ai](https://docs.openclaw.ai).
-
-<p align="center">
-    <img
-        src="/assets/openclaw-logo-text-dark.png"
-        alt="OpenClaw"
-        width="500"
-        class="dark:hidden"
-    />
-    <img
-        src="/assets/openclaw-logo-text.png"
-        alt="OpenClaw"
-        width="500"
-        class="hidden dark:block"
-    />
-</p>
+> **This doc set is for Cortana** — a neutral, de-branded fork of OpenClaw for non-technical users. Upstream docs: [docs.openclaw.ai](https://docs.openclaw.ai).
 
 <p align="center">
   <strong>Any OS + WhatsApp/Telegram/Discord/iMessage gateway for AI agents (Pi).</strong><br />
@@ -31,33 +16,27 @@ title: "Personal Assistant"
 </p>
 
 <p align="center">
-  <a href="https://github.com/openclaw/openclaw">GitHub</a> ·
-  <a href="https://github.com/openclaw/openclaw/releases">Releases</a> ·
+  <a href="https://github.com/openclaw/openclaw">Upstream</a> ·
   <a href="/">Docs</a> ·
-  <a href="/start/openclaw">OpenClaw assistant setup</a>
+  <a href="/start/cortana">Cortana setup</a>
 </p>
 
-OpenClaw bridges WhatsApp (via WhatsApp Web / Baileys), Telegram (Bot API / grammY), Discord (Bot API / channels.discord.js), and iMessage (imsg CLI) to coding agents like [Pi](https://github.com/badlogic/pi-mono). Plugins add Mattermost (Bot API + WebSocket) and more.
-OpenClaw also powers the OpenClaw assistant.
+Cortana bridges WhatsApp (via WhatsApp Web / Baileys), Telegram (Bot API / grammY), Discord (Bot API / channels.discord.js), and iMessage (imsg CLI) to coding agents like [Pi](https://github.com/badlogic/pi-mono). Plugins add Mattermost (Bot API + WebSocket) and more.
 
 ## Start here
 
 - **New install from zero:** [Getting Started](/start/getting-started)
-- **Guided setup (recommended):** [Wizard](/start/wizard) (`openclaw onboard`)
+- **Guided setup (recommended):** [Wizard](/start/wizard) (`cortana onboard`)
 - **Open the dashboard (local Gateway):** http://127.0.0.1:18789/ (or http://localhost:18789/)
 
 If the Gateway is running on the same computer, that link opens the browser Control UI
-immediately. If it fails, start the Gateway first: `openclaw gateway`.
+immediately. If it fails, start the Gateway first: `cortana gateway`.
 
 ## Dashboard (browser Control UI)
 
 The dashboard is the browser Control UI for chat, config, nodes, sessions, and more.
 Local default: http://127.0.0.1:18789/
 Remote access: [Web surfaces](/web) and [Tailscale](/gateway/tailscale)
-
-<p align="center">
-  <img src="whatsapp-openclaw.jpg" alt="OpenClaw" width="420" />
-</p>
 
 ## How it works
 
@@ -73,99 +52,98 @@ WhatsApp / Telegram / Discord / iMessage (+ plugins)
   └───────────┬───────────────┘
               │
               ├─ Pi agent (RPC)
-              ├─ CLI (openclaw …)
+              ├─ CLI (cortana …)
               ├─ Chat UI (SwiftUI)
-              ├─ macOS app (OpenClaw.app)
+              ├─ macOS app
               ├─ iOS node via Gateway WS + pairing
               └─ Android node via Gateway WS + pairing
 ```
 
-Most operations flow through the **Gateway** (`openclaw gateway`), a single long-running process that owns channel connections and the WebSocket control plane.
+Most operations flow through the **Gateway** (`cortana gateway`), a single long-running process that owns channel connections and the WebSocket control plane.
 
 ## Network model
 
 - **One Gateway per host (recommended)**: it is the only process allowed to own the WhatsApp Web session. If you need a rescue bot or strict isolation, run multiple gateways with isolated profiles and ports; see [Multiple gateways](/gateway/multiple-gateways).
 - **Loopback-first**: Gateway WS defaults to `ws://127.0.0.1:18789`.
   - The wizard now generates a gateway token by default (even for loopback).
-  - For Tailnet access, run `openclaw gateway --bind tailnet --token ...` (token is required for non-loopback binds).
+  - For Tailnet access, run `cortana gateway --bind tailnet --token ...` (token is required for non-loopback binds).
 - **Nodes**: connect to the Gateway WebSocket (LAN/tailnet/SSH as needed); legacy TCP bridge is deprecated/removed.
 - **Canvas host**: HTTP file server on `canvasHost.port` (default `18793`), serving `/__openclaw__/canvas/` for node WebViews; see [Gateway configuration](/gateway/configuration) (`canvasHost`).
 - **Remote use**: SSH tunnel or tailnet/VPN; see [Remote access](/gateway/remote) and [Discovery](/gateway/discovery).
 
 ## Features (high level)
 
-- 📱 **WhatsApp Integration** — Uses Baileys for WhatsApp Web protocol
-- ✈️ **Telegram Bot** — DMs + groups via grammY
-- 🎮 **Discord Bot** — DMs + guild channels via channels.discord.js
-- 🧩 **Mattermost Bot (plugin)** — Bot token + WebSocket events
-- 💬 **iMessage** — Local imsg CLI integration (macOS)
-- 🤖 **Agent bridge** — Pi (RPC mode) with tool streaming
-- ⏱️ **Streaming + chunking** — Block streaming + Telegram draft streaming details ([/concepts/streaming](/concepts/streaming))
-- 🧠 **Multi-agent routing** — Route provider accounts/peers to isolated agents (workspace + per-agent sessions)
-- 🔐 **Subscription auth** — Anthropic (Claude Pro/Max) + OpenAI (ChatGPT/Codex) via OAuth
-- 💬 **Sessions** — Direct chats collapse into shared `main` (default); groups are isolated
-- 👥 **Group Chat Support** — Mention-based by default; owner can toggle `/activation always|mention`
-- 📎 **Media Support** — Send and receive images, audio, documents
-- 🎤 **Voice notes** — Optional transcription hook
-- 🖥️ **WebChat + macOS app** — Local UI + menu bar companion for ops and voice wake
-- 📱 **iOS node** — Pairs as a node and exposes a Canvas surface
-- 📱 **Android node** — Pairs as a node and exposes Canvas + Chat + Camera
+- **WhatsApp Integration** — Uses Baileys for WhatsApp Web protocol
+- **Telegram Bot** — DMs + groups via grammY
+- **Discord Bot** — DMs + guild channels via channels.discord.js
+- **Mattermost Bot (plugin)** — Bot token + WebSocket events
+- **iMessage** — Local imsg CLI integration (macOS)
+- **Agent bridge** — Pi (RPC mode) with tool streaming
+- **Streaming + chunking** — Block streaming + Telegram draft streaming details ([/concepts/streaming](/concepts/streaming))
+- **Multi-agent routing** — Route provider accounts/peers to isolated agents (workspace + per-agent sessions)
+- **Subscription auth** — Anthropic (Claude Pro/Max) + OpenAI (ChatGPT/Codex) via OAuth
+- **Sessions** — Direct chats collapse into shared `main` (default); groups are isolated
+- **Group Chat Support** — Mention-based by default; owner can toggle `/activation always|mention`
+- **Media Support** — Send and receive images, audio, documents
+- **Voice notes** — Optional transcription hook
+- **WebChat + macOS app** — Local UI + menu bar companion for ops and voice wake
+- **iOS node** — Pairs as a node and exposes a Canvas surface
+- **Android node** — Pairs as a node and exposes Canvas + Chat + Camera
 
 Note: legacy Claude/Codex/Gemini/Opencode paths have been removed; Pi is the only coding-agent path.
 
 ## Quick start
 
-Runtime requirement: **Node ≥ 22**.
+Runtime requirement: **Node >= 22**.
 
 ```bash
-# Recommended: global install (npm/pnpm)
-npm install -g openclaw@latest
-# or: pnpm add -g openclaw@latest
+# From source (this fork)
+git clone <your-fork-url>
+cd cortana
+./scripts/quickstart.sh
 
-# Onboard + install the service (launchd/systemd user service)
-openclaw onboard --install-daemon
+# After setup, use the cortana alias
+cortana onboard --install-daemon
 
 # Pair WhatsApp Web (shows QR)
-openclaw channels login
+cortana channels login
 
 # Gateway runs via the service after onboarding; manual run is still possible:
-openclaw gateway --port 18789
+cortana gateway --port 18789
 ```
-
-Switching between npm and git installs later is easy: install the other flavor and run `openclaw doctor` to update the gateway service entrypoint.
 
 From source (development):
 
 ```bash
-git clone https://github.com/openclaw/openclaw.git
-cd openclaw
+git clone <your-fork-url>
+cd cortana
 pnpm install
 pnpm ui:build # auto-installs UI deps on first run
 pnpm build
-openclaw onboard --install-daemon
+cortana onboard --install-daemon
 ```
 
-If you don’t have a global install yet, run the onboarding step via `pnpm openclaw ...` from the repo.
+If you don't have the `cortana` alias yet, run the onboarding step via `pnpm openclaw ...` from the repo.
 
 Multi-instance quickstart (optional):
 
 ```bash
 OPENCLAW_CONFIG_PATH=~/.openclaw/a.json \
 OPENCLAW_STATE_DIR=~/.openclaw-a \
-openclaw gateway --port 19001
+cortana gateway --port 19001
 ```
 
 Send a test message (requires a running Gateway):
 
 ```bash
-openclaw message send --target +15555550123 --message "Hello from OpenClaw"
+cortana message send --target +15555550123 --message "Hello from Cortana"
 ```
 
 ## Configuration (optional)
 
 Config lives at `~/.openclaw/openclaw.json`.
 
-- If you **do nothing**, OpenClaw uses the bundled Pi binary in RPC mode with per-sender sessions.
+- If you **do nothing**, Cortana uses the bundled Pi binary in RPC mode with per-sender sessions.
 - If you want to lock it down, start with `channels.whatsapp.allowFrom` and (for groups) mention rules.
 
 Example:
@@ -178,7 +156,7 @@ Example:
       groups: { "*": { requireMention: true } },
     },
   },
-  messages: { groupChat: { mentionPatterns: ["@openclaw"] } },
+  messages: { groupChat: { mentionPatterns: ["@cortana"] } },
 }
 ```
 
@@ -186,7 +164,7 @@ Example:
 
 - Start here:
   - [Docs hubs (all pages linked)](/start/hubs)
-  - [Help](/help) ← _common fixes + troubleshooting_
+  - [Help](/help) — _common fixes + troubleshooting_
   - [Configuration](/gateway/configuration)
   - [Configuration examples](/gateway/configuration-examples)
   - [Slash commands](/tools/slash-commands)
@@ -194,7 +172,7 @@ Example:
   - [Updating / rollback](/install/updating)
   - [Pairing (DM + nodes)](/start/pairing)
   - [Nix mode](/install/nix)
-  - [OpenClaw assistant setup](/start/openclaw)
+  - [Cortana setup](/start/cortana)
   - [Skills](/tools/skills)
   - [Skills config](/tools/skills-config)
   - [Workspace templates](/reference/templates/AGENTS)
@@ -233,11 +211,6 @@ Example:
 
 - **Peter Steinberger** ([@steipete](https://twitter.com/steipete)) — Creator of OpenClaw (upstream)
 - **Mario Zechner** ([@badlogicc](https://twitter.com/badlogicgames)) — Pi creator, security pen-tester
-
-## Core Contributors
-
-- **Maxim Vovshin** (@Hyaxia, 36747317+Hyaxia@users.noreply.github.com) — Blogwatcher skill
-- **Nacho Iacovino** (@nachoiacovino, nacho.iacovino@gmail.com) — Location parsing (Telegram + WhatsApp)
 
 ## License
 

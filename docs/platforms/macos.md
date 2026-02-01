@@ -1,14 +1,14 @@
 ---
-summary: "OpenClaw macOS companion app (menu bar + gateway broker)"
+summary: "Cortana macOS companion app (menu bar + gateway broker)"
 read_when:
   - Implementing macOS app features
   - Changing gateway lifecycle or node bridging on macOS
 title: "macOS App"
 ---
 
-# OpenClaw macOS Companion (menu bar + gateway broker)
+# Cortana macOS Companion (menu bar + gateway broker)
 
-The macOS app is the **menu‑bar companion** for OpenClaw. It owns permissions,
+The macOS app is the **menu-bar companion** for Cortana. It owns permissions,
 manages/attaches to the Gateway locally (launchd or manual), and exposes macOS
 capabilities to the agent as a node.
 
@@ -18,15 +18,15 @@ capabilities to the agent as a node.
 - Owns TCC prompts (Notifications, Accessibility, Screen Recording, Microphone,
   Speech Recognition, Automation/AppleScript).
 - Runs or connects to the Gateway (local or remote).
-- Exposes macOS‑only tools (Canvas, Camera, Screen Recording, `system.run`).
+- Exposes macOS-only tools (Canvas, Camera, Screen Recording, `system.run`).
 - Starts the local node host service in **remote** mode (launchd), and stops it in **local** mode.
 - Optionally hosts **PeekabooBridge** for UI automation.
-- Installs the global CLI (`openclaw`) via npm/pnpm on request (bun not recommended for the Gateway runtime).
+- Installs the global CLI (`cortana` alias) on request (bun not recommended for the Gateway runtime).
 
 ## Local vs remote mode
 
 - **Local** (default): the app attaches to a running local Gateway if present;
-  otherwise it enables the launchd service via `openclaw gateway install`.
+  otherwise it enables the launchd service via `cortana gateway install`.
 - **Remote**: the app connects to a Gateway over SSH/Tailscale and never starts
   a local process.
   The app starts the local **node host service** so the remote Gateway can reach this Mac.
@@ -34,7 +34,7 @@ capabilities to the agent as a node.
 
 ## Launchd control
 
-The app manages a per‑user LaunchAgent labeled `bot.molt.gateway`
+The app manages a per-user LaunchAgent labeled `bot.molt.gateway`
 (or `bot.molt.<profile>` when using `--profile`/`OPENCLAW_PROFILE`; legacy `com.openclaw.*` still unloads).
 
 ```bash
@@ -44,8 +44,12 @@ launchctl bootout gui/$UID/bot.molt.gateway
 
 Replace the label with `bot.molt.<profile>` when running a named profile.
 
-If the LaunchAgent isn’t installed, enable it from the app or run
-`openclaw gateway install`.
+If the LaunchAgent isn't installed, enable it from the app or run
+`cortana gateway install`.
+
+**From source:** If running a local fork, install the service from within the repo:
+`node dist/entry-bootstrap.js gateway install`. This points the LaunchAgent to
+your local build instead of the global npm package.
 
 ## Node capabilities (mac)
 
@@ -56,7 +60,7 @@ The macOS app presents itself as a node. Common commands:
 - Screen: `screen.record`
 - System: `system.run`, `system.notify`
 
-The node reports a `permissions` map so agents can decide what’s allowed.
+The node reports a `permissions` map so agents can decide what's allowed.
 
 Node service + app IPC:
 
@@ -74,7 +78,7 @@ Gateway -> Node Service (WS)
 
 ## Exec approvals (system.run)
 
-`system.run` is controlled by **Exec approvals** in the macOS app (Settings → Exec approvals).
+`system.run` is controlled by **Exec approvals** in the macOS app (Settings Exec approvals).
 Security + ask + allowlist are stored locally on the Mac in:
 
 ```
@@ -103,8 +107,8 @@ Example:
 Notes:
 
 - `allowlist` entries are glob patterns for resolved binary paths.
-- Choosing “Always Allow” in the prompt adds that command to the allowlist.
-- `system.run` environment overrides are filtered (drops `PATH`, `DYLD_*`, `LD_*`, `NODE_OPTIONS`, `PYTHON*`, `PERL*`, `RUBYOPT`) and then merged with the app’s environment.
+- Choosing "Always Allow" in the prompt adds that command to the allowlist.
+- `system.run` environment overrides are filtered (drops `PATH`, `DYLD_*`, `LD_*`, `NODE_OPTIONS`, `PYTHON*`, `PERL*`, `RUBYOPT`) and then merged with the app's environment.
 
 ## Deep links
 
@@ -134,7 +138,7 @@ Safety:
 
 ## Onboarding flow (typical)
 
-1. Install and launch **OpenClaw.app**.
+1. Install and launch the macOS app.
 2. Complete the permissions checklist (TCC prompts).
 3. Ensure **Local** mode is active and the Gateway is running.
 4. Install the CLI if you want terminal access.
@@ -166,13 +170,13 @@ Connect options:
 
 Discovery options:
 
-- `--include-local`: include gateways that would be filtered as “local”
+- `--include-local`: include gateways that would be filtered as "local"
 - `--timeout <ms>`: overall discovery window (default: `2000`)
 - `--json`: structured output for diffing
 
-Tip: compare against `openclaw gateway discover --json` to see whether the
-macOS app’s discovery pipeline (NWBrowser + tailnet DNS‑SD fallback) differs from
-the Node CLI’s `dns-sd` based discovery.
+Tip: compare against `cortana gateway discover --json` to see whether the
+macOS app's discovery pipeline (NWBrowser + tailnet DNS-SD fallback) differs from
+the Node CLI's `dns-sd` based discovery.
 
 ## Remote connection plumbing (SSH tunnels)
 

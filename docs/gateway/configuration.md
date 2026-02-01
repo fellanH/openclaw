@@ -130,7 +130,7 @@ To prevent the bot from responding to WhatsApp @-mentions in groups (only respon
     list: [
       {
         id: "main",
-        groupChat: { mentionPatterns: ["@openclaw", "reisponde"] },
+        groupChat: { mentionPatterns: ["@cortana", "reisponde"] },
       },
     ],
   },
@@ -604,7 +604,7 @@ Group messages default to **require mention** (either metadata mention or regex 
     groupChat: { historyLimit: 50 },
   },
   agents: {
-    list: [{ id: "main", groupChat: { mentionPatterns: ["@openclaw", "openclaw"] } }],
+    list: [{ id: "main", groupChat: { mentionPatterns: ["@cortana", "cortana"] } }],
   },
 }
 ```
@@ -668,7 +668,7 @@ To respond **only** to specific text triggers (ignoring native @-mentions):
         id: "main",
         groupChat: {
           // Only these text patterns will trigger responses
-          mentionPatterns: ["reisponde", "@openclaw"],
+          mentionPatterns: ["reisponde", "@cortana"],
         },
       },
     ],

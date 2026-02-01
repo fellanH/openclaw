@@ -359,15 +359,19 @@
     },
     {
       "source": "/clawd",
-      "destination": "/start/openclaw"
+      "destination": "/start/cortana"
     },
     {
       "source": "/start/clawd",
-      "destination": "/start/openclaw"
+      "destination": "/start/cortana"
     },
     {
       "source": "/start/clawd/",
-      "destination": "/start/openclaw"
+      "destination": "/start/cortana"
+    },
+    {
+      "source": "/start/openclaw",
+      "destination": "/start/cortana"
     },
     {
       "source": "/clawhub",

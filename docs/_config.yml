@@ -22,8 +22,8 @@ defaults:
 nav:
   - title: "Home"
     url: "/"
-  - title: "OpenClaw Assistant"
-    url: "/start/openclaw/"
+  - title: "Cortana Setup"
+    url: "/start/cortana/"
   - title: "Gateway"
     url: "/gateway/"
   - title: "Remote"

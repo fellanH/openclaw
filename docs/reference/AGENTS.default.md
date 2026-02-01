@@ -1,17 +1,17 @@
 ---
-summary: "Default OpenClaw agent instructions and skills roster for the personal assistant setup"
+summary: "Default Cortana agent instructions and skills roster for the personal assistant setup"
 read_when:
-  - Starting a new OpenClaw agent session
+  - Starting a new Cortana agent session
   - Enabling or auditing default skills
 ---
 
-# AGENTS.md — OpenClaw Personal Assistant (default)
+# AGENTS.md — Cortana (default)
 
 ## First run (recommended)
 
-OpenClaw uses a dedicated workspace directory for the agent. Default: `~/.openclaw/workspace` (configurable via `agents.defaults.workspace`).
+Cortana uses a dedicated workspace directory for the agent. Default: `~/.openclaw/workspace` (configurable via `agents.defaults.workspace`).
 
-1. Create the workspace (if it doesn’t already exist):
+1. Create the workspace (if it doesn't already exist):
 
 ```bash
 mkdir -p ~/.openclaw/workspace
@@ -41,9 +41,9 @@ cp docs/reference/AGENTS.default.md ~/.openclaw/workspace/AGENTS.md
 
 ## Safety defaults
 
-- Don’t dump directories or secrets into chat.
-- Don’t run destructive commands unless explicitly asked.
-- Don’t send partial/streaming replies to external messaging surfaces (only final replies).
+- Don't dump directories or secrets into chat.
+- Don't run destructive commands unless explicitly asked.
+- Don't send partial/streaming replies to external messaging surfaces (only final replies).
 
 ## Session start (required)
 
@@ -58,8 +58,8 @@ cp docs/reference/AGENTS.default.md ~/.openclaw/workspace/AGENTS.md
 
 ## Shared spaces (recommended)
 
-- You’re not the user’s voice; be careful in group chats or public channels.
-- Don’t share private data, contact info, or internal notes.
+- You're not the user's voice; be careful in group chats or public channels.
+- Don't share private data, contact info, or internal notes.
 
 ## Memory system (recommended)
 
@@ -71,28 +71,28 @@ cp docs/reference/AGENTS.default.md ~/.openclaw/workspace/AGENTS.md
 
 ## Tools & skills
 
-- Tools live in skills; follow each skill’s `SKILL.md` when you need it.
+- Tools live in skills; follow each skill's `SKILL.md` when you need it.
 - Keep environment-specific notes in `TOOLS.md` (Notes for Skills).
 
 ## Backup tip (recommended)
 
-If you treat this workspace as Clawd’s “memory”, make it a git repo (ideally private) so `AGENTS.md` and your memory files are backed up.
+If you treat this workspace as the assistant's "memory", make it a git repo (ideally private) so `AGENTS.md` and your memory files are backed up.
 
 ```bash
 cd ~/.openclaw/workspace
 git init
 git add AGENTS.md
-git commit -m "Add Clawd workspace"
+git commit -m "Add workspace"
 # Optional: add a private remote + push
 ```
 
-## What OpenClaw Does
+## What Cortana Does
 
 - Runs WhatsApp gateway + Pi coding agent so the assistant can read/write chats, fetch context, and run skills via the host Mac.
-- macOS app manages permissions (screen recording, notifications, microphone) and exposes the `openclaw` CLI via its bundled binary.
+- macOS app manages permissions (screen recording, notifications, microphone) and exposes the `cortana` CLI via its bundled binary.
 - Direct chats collapse into the agent's `main` session by default; groups stay isolated as `agent:<agentId>:<channel>:group:<id>` (rooms/channels: `agent:<agentId>:<channel>:channel:<id>`); heartbeats keep background tasks alive.
 
-## Core Skills (enable in Settings → Skills)
+## Core Skills (enable in Settings > Skills)
 
 - **mcporter** — Tool server runtime/CLI for managing external skill backends.
 - **Peekaboo** — Fast macOS screenshots with optional AI vision analysis.
@@ -115,10 +115,10 @@ git commit -m "Add Clawd workspace"
 
 ## Usage Notes
 
-- Prefer the `openclaw` CLI for scripting; mac app handles permissions.
+- Prefer the `cortana` CLI for scripting; mac app handles permissions.
 - Run installs from the Skills tab; it hides the button if a binary is already present.
 - Keep heartbeats enabled so the assistant can schedule reminders, monitor inboxes, and trigger camera captures.
-- Canvas UI runs full-screen with native overlays. Avoid placing critical controls in the top-left/top-right/bottom edges; add explicit gutters in the layout and don’t rely on safe-area insets.
-- For browser-driven verification, use `openclaw browser` (tabs/status/screenshot) with the OpenClaw-managed Chrome profile.
-- For DOM inspection, use `openclaw browser eval|query|dom|snapshot` (and `--json`/`--out` when you need machine output).
-- For interactions, use `openclaw browser click|type|hover|drag|select|upload|press|wait|navigate|back|evaluate|run` (click/type require snapshot refs; use `evaluate` for CSS selectors).
+- Canvas UI runs full-screen with native overlays. Avoid placing critical controls in the top-left/top-right/bottom edges; add explicit gutters in the layout and don't rely on safe-area insets.
+- For browser-driven verification, use `cortana browser` (tabs/status/screenshot) with the Cortana-managed Chrome profile.
+- For DOM inspection, use `cortana browser eval|query|dom|snapshot` (and `--json`/`--out` when you need machine output).
+- For interactions, use `cortana browser click|type|hover|drag|select|upload|press|wait|navigate|back|evaluate|run` (click/type require snapshot refs; use `evaluate` for CSS selectors).
