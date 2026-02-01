@@ -142,6 +142,15 @@ export function buildMinimalServicePath(options: BuildServicePathOptions = {}): 
   return getMinimalServicePathPartsFromEnv({ ...options, env }).join(path.posix.delimiter);
 }
 
+/**
+ * Node.js warning flags to suppress in service environments.
+ * These are also used by entry-bootstrap.ts for CLI invocations.
+ */
+export const SERVICE_NODE_OPTIONS = [
+  "--disable-warning=ExperimentalWarning",
+  "--disable-warning=DEP0040", // punycode deprecation (node-fetch → tr46)
+].join(" ");
+
 export function buildServiceEnvironment(params: {
   env: Record<string, string | undefined>;
   port: number;
@@ -159,6 +168,7 @@ export function buildServiceEnvironment(params: {
   return {
     HOME: env.HOME,
     PATH: buildMinimalServicePath({ env }),
+    NODE_OPTIONS: SERVICE_NODE_OPTIONS,
     OPENCLAW_PROFILE: profile,
     OPENCLAW_STATE_DIR: stateDir,
     OPENCLAW_CONFIG_PATH: configPath,
