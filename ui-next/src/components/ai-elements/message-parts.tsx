@@ -158,6 +158,10 @@ export function MessageParts({
             }
 
             default:
+              // Log unexpected part types in development
+              if (process.env.NODE_ENV === "development") {
+                console.warn("[MessageParts] Unknown part type:", (part as { type?: string }).type, part);
+              }
               return null;
           }
         })}

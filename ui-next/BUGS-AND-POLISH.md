@@ -6,7 +6,7 @@
 
 ## 🐛 Active Bugs
 
-### 1. Message Display Misalignment
+### 1. Message Display Misalignment — UNDER INVESTIGATION
 
 **Problem:** Messages sometimes display with:
 - Stray brackets (e.g., `]` appearing alone)
@@ -15,16 +15,39 @@
 
 **When it happens:** Intermittent — most of the time it works fine
 
-**Location to investigate:**
-- `src/components/ai-elements/message-parts.tsx` — Parts rendering logic
-- `src/components/ai-elements/message.tsx` — `MessageResponse` component
-- `src/lib/use-gateway.ts` — `parseHistoryMessage`, `extractParts`, `extractText`
+**Investigation (2026-02-02):**
 
-**Possible causes:**
-- Markdown parsing edge cases
-- Incomplete content blocks from streaming
-- Race condition between chat and agent events
-- Parts array containing malformed data
+Traced the complete data flow from gateway to rendering:
+
+1. **Dual-Stream Architecture:**
+   - `chat` events → text only (delta → final)
+   - `agent` events → structured tool data (tool phases)
+   - `loadHistory` RPC → full structured content arrays
+
+2. **Defensive Fixes Applied:**
+   - Added guards in `extractText`, `parseHistoryMessage`, `extractParts` to skip non-object content blocks
+   - Added development-only console warnings for malformed data
+   - These prevent raw strings (like stray `]`) from leaking through
+
+3. **Key Findings:**
+   - `final` events only contain text, not tool parts
+   - Tool calls tracked separately via `toolExecutions` state
+   - History endpoint returns fully structured messages
+
+4. **Remaining Hypotheses:**
+   - Gateway or storage occasionally sends malformed content blocks
+   - Race condition between history load and live events when switching sessions
+   - Streamdown markdown parser edge cases with certain content patterns
+   - Multiple text parts in a message creating separate DOM wrappers
+
+**Files Modified:**
+- `src/lib/use-gateway.ts` — Added defensive checks + dev warnings
+- `src/components/ai-elements/message-parts.tsx` — Added warning for unknown part types
+
+**Next Steps:**
+1. Monitor browser console in development for warnings
+2. If warnings appear, they'll reveal the exact malformed data
+3. Consider adding error boundaries around message rendering
 
 ---
 
@@ -53,17 +76,20 @@ When investigating message issues:
 | New session label | Fixed `generateSessionLabel` to return "New Chat" for `agent:main:<timestamp>` patterns | 2026-02-02 |
 | Stop button behavior | Consolidated into single PromptInputSubmit with status/onStop | 2026-02-02 |
 | Text overflow in input | Added min-w-0 to flex container | 2026-02-02 |
+| Loading state transitions | Added skeleton loaders, AnimatePresence transitions, thinking indicator | 2026-02-02 |
+| Error boundaries | Added ErrorBoundary components with graceful fallbacks | 2026-02-02 |
+| Empty state | Extracted to dedicated component with smooth animations | 2026-02-02 |
 
 ---
 
 ## 📝 Polish Items
 
-- [ ] Loading states — smoother transitions
-- [ ] Error boundaries — graceful fallbacks for rendering errors
-- [ ] Empty state refinement
+- [x] Loading states — smoother transitions ✅
+- [x] Error boundaries — graceful fallbacks for rendering errors ✅
+- [x] Empty state refinement ✅
 - [ ] Consistent spacing/padding review
 - [ ] Dark mode contrast check
 
 ---
 
-_Last updated: 2026-02-02 12:47_
+_Last updated: 2026-02-02 13:25_
