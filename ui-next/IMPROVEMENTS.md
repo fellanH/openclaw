@@ -51,10 +51,10 @@
 
 ### 🐛 Known Bugs
 
-| Bug | Description |
-|-----|-------------|
-| **Subagent tree nesting** | Subagents always appear under main session instead of nesting under their actual parent session |
-| **Duplicate sparkle icon** | Old lucide sparkle icon still shows in session tree items — should be removed now that new icons were added |
+| Bug | Status |
+|-----|--------|
+| ~~Subagent tree nesting~~ | ✅ Fixed — subagents now nest under actual parent session |
+| ~~Duplicate sparkle icon~~ | ✅ Fixed — removed old SparklesIcon from tree items |
 
 ### 💡 Feature Ideas
 

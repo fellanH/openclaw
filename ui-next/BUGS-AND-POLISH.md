@@ -48,6 +48,8 @@ When investigating message issues:
 
 | Issue | Fix | Date |
 |-------|-----|------|
+| Subagent tree nesting | Added parentSessionKey tracking - subagents now nest under actual parent | 2026-02-02 |
+| Duplicate sparkle icon | Removed old SparklesIcon from session tree items | 2026-02-02 |
 | New session label | Fixed `generateSessionLabel` to return "New Chat" for `agent:main:<timestamp>` patterns | 2026-02-02 |
 | Stop button behavior | Consolidated into single PromptInputSubmit with status/onStop | 2026-02-02 |
 | Text overflow in input | Added min-w-0 to flex container | 2026-02-02 |
