@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useMemo } from "react";
+import { useShallow } from "zustand/react/shallow";
 import type { GatewayClient, GatewayEventFrame } from "./gateway";
 import {
   useSessionStore,
@@ -17,6 +18,72 @@ import {
 // Re-export types for convenience
 export type { ChatMessage, ChatStatus, MessagePart, ToolExecutionState, SubagentState, SessionData };
 export { useSession, useSessionField };
+
+/**
+ * Result from useSessionData hook.
+ * All session fields in a single subscription.
+ */
+export interface SessionDataResult {
+  messages: ChatMessage[];
+  status: ChatStatus;
+  streamingContent: string;
+  error: string | null;
+  historyLoading: boolean;
+  historyLoaded: boolean;
+  toolExecutions: Map<string, ToolExecutionState>;
+  subagents: Map<string, SubagentState>;
+  messageQueue: string[];
+}
+
+// Cache for empty session defaults to avoid infinite re-render loops
+const emptySessionCache = new Map<string, SessionDataResult>();
+
+function getEmptySessionData(sessionKey: string): SessionDataResult {
+  const cached = emptySessionCache.get(sessionKey);
+  if (cached) return cached;
+
+  const empty: SessionDataResult = {
+    messages: [],
+    status: "idle" as ChatStatus,
+    streamingContent: "",
+    error: null,
+    historyLoading: false,
+    historyLoaded: false,
+    toolExecutions: new Map(),
+    subagents: new Map(),
+    messageQueue: [],
+  };
+  emptySessionCache.set(sessionKey, empty);
+  return empty;
+}
+
+/**
+ * Optimized hook to get all session data in a single Zustand subscription.
+ * Uses shallow comparison to minimize re-renders.
+ *
+ * Replaces 8+ individual useSessionField calls with one subscription.
+ */
+export function useSessionData(sessionKey: string): SessionDataResult {
+  return useSessionStore(
+    useShallow((state) => {
+      const session = state.sessions.get(sessionKey);
+      if (!session) {
+        return getEmptySessionData(sessionKey);
+      }
+      return {
+        messages: session.messages,
+        status: session.status,
+        streamingContent: session.streamingContent,
+        error: session.error,
+        historyLoading: session.historyLoading,
+        historyLoaded: session.historyLoaded,
+        toolExecutions: session.toolExecutions,
+        subagents: session.subagents,
+        messageQueue: session.messageQueue,
+      };
+    })
+  );
+}
 
 /**
  * Hook to manage scroll state for a session.

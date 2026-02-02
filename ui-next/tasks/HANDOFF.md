@@ -80,6 +80,37 @@ Removed deprecated code from `src/lib/use-gateway.ts` based on Task 1 audit.
 
 **Output:** `tasks/task-2.md`
 
+### Task 3: Create Optimized Session Selector (2026-02-02)
+
+Created `useSessionData` hook in `src/lib/use-session.ts` to replace 8+ individual `useSessionField` calls with a single optimized Zustand subscription.
+
+**Implementation:**
+- Added `useShallow` from `zustand/react/shallow` for shallow comparison
+- Created `SessionDataResult` interface with all session fields
+- Implemented cache for empty session defaults to prevent infinite re-render loops (per CLAUDE.md guidance)
+- Hook returns: messages, status, streamingContent, error, historyLoading, historyLoaded, toolExecutions, subagents, messageQueue
+
+**API:**
+```typescript
+import { useSessionData } from "@/lib/use-session";
+
+const {
+  messages,
+  status,
+  streamingContent,
+  error,
+  historyLoading,
+  historyLoaded,
+  toolExecutions,
+  subagents,
+  messageQueue,
+} = useSessionData(sessionKey);
+```
+
+**Result:** Single subscription instead of 8+ separate subscriptions. Ready for consumer migration.
+
+**Output:** `tasks/task-3.md`
+
 ## In Progress
 
 *None*
