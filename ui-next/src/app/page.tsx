@@ -14,6 +14,15 @@ import {
   MessageAction,
 } from "@/components/ai-elements/message";
 import { MessageParts } from "@/components/ai-elements/message-parts";
+import {
+  PromptInput,
+  PromptInputBody,
+  PromptInputFooter,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputTools,
+  type PromptInputMessage,
+} from "@/components/ai-elements/prompt-input";
 import { Loader } from "@/components/ai-elements/loader";
 import {
   CopyIcon,
@@ -28,7 +37,6 @@ import { loadSettings, saveSettings, createLocalSession } from "@/lib/storage";
 import { SessionSidebar, type SessionSidebarHandle } from "@/components/session-sidebar";
 import { ThemeDropdown } from "@/components/theme-toggle";
 import { SidebarHeader } from "@/components/sidebar-header";
-import { SidebarInput } from "@/components/sidebar-input";
 import { useBreakpoint } from "@/hooks/use-mobile";
 
 // Helper to get initial settings synchronously (safe for SSR)
@@ -54,6 +62,7 @@ function getInitialSettings() {
 export default function ChatPage() {
   // Initialize from storage synchronously during first render
   const [initialSettings] = useState(getInitialSettings);
+  const [input, setInput] = useState("");
   const [sessionKey, setSessionKey] = useState(initialSettings.sessionKey);
   const [showSettings, setShowSettings] = useState(false);
   const [gatewayUrl, setGatewayUrl] = useState(initialSettings.gatewayUrl);
@@ -169,9 +178,10 @@ export default function ChatPage() {
     }
   }, [stopSubagent]);
 
-  const handleSubmit = (text: string) => {
-    if (!text.trim()) return;
-    sendMessage(text);
+  const handleSubmit = (message: PromptInputMessage) => {
+    if (!message.text?.trim()) return;
+    sendMessage(message.text);
+    setInput("");
   };
 
   const handleCopy = (content: string, id: string) => {
@@ -194,28 +204,6 @@ export default function ChatPage() {
     />
   );
 
-  // Sidebar input component (only shown in sidebar on desktop)
-  const sidebarFooter = !isMobile ? (
-    <SidebarInput
-      onSubmit={handleSubmit}
-      onAbort={abort}
-      canAbort={canAbort}
-      connected={connected}
-    />
-  ) : null;
-
-  // Mobile input component
-  const mobileInput = isMobile ? (
-    <div className="flex-shrink-0 border-t border-border/50 bg-card/50 backdrop-blur-xl">
-      <SidebarInput
-        onSubmit={handleSubmit}
-        onAbort={abort}
-        canAbort={canAbort}
-        connected={connected}
-      />
-    </div>
-  ) : null;
-
   return (
     <div className="h-screen bg-gradient-to-b from-background to-background/95 flex overflow-hidden">
       {/* Session Sidebar - Desktop: static, Tablet/Mobile: overlay */}
@@ -230,7 +218,6 @@ export default function ChatPage() {
           onToggleCollapsed={() => setMobileSidebarOpen(!mobileSidebarOpen)}
           onNewSession={handleNewSession}
           header={sidebarHeader}
-          footer={sidebarFooter}
           isOverlay={true}
           onClose={() => setMobileSidebarOpen(false)}
         />
@@ -245,7 +232,6 @@ export default function ChatPage() {
           onToggleCollapsed={() => setSidebarCollapsed(!sidebarCollapsed)}
           onNewSession={handleNewSession}
           header={sidebarHeader}
-          footer={sidebarFooter}
         />
       )}
 
@@ -344,10 +330,10 @@ export default function ChatPage() {
           </div>
         )}
 
-        {/* Chat area - Full height */}
-        <div className="flex-1 overflow-hidden">
-          <Conversation className="h-full">
-            <ConversationContent className="px-4 md:px-6 py-4 max-w-4xl mx-auto">
+        {/* Chat area */}
+        <div className="flex-1 flex flex-col px-4 md:px-6 py-4 overflow-hidden max-w-4xl mx-auto w-full">
+          <Conversation className="flex-1">
+            <ConversationContent>
               {messages.length === 0 && !streamingContent && status !== "submitted" && (
                 <div className="flex flex-col items-center justify-center h-full text-center px-4">
                   <div className="w-16 h-16 md:w-20 md:h-20 rounded-3xl bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20 flex items-center justify-center mb-6">
@@ -359,6 +345,17 @@ export default function ChatPage() {
                   <p className="text-muted-foreground mt-2 max-w-sm text-sm md:text-base">
                     Your AI assistant. Ask me anything — I can help with code, answer questions, and much more.
                   </p>
+                  <div className="flex flex-wrap gap-2 mt-6 justify-center">
+                    {["What can you do?", "Help me code", "Explain something"].map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        onClick={() => setInput(suggestion)}
+                        className="px-4 py-2 rounded-full bg-accent/50 hover:bg-accent text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -424,10 +421,33 @@ export default function ChatPage() {
             </ConversationContent>
             <ConversationScrollButton />
           </Conversation>
-        </div>
 
-        {/* Mobile input at bottom */}
-        {mobileInput}
+          {/* Input - centered in main area */}
+          <div className="pt-4 flex-shrink-0">
+            <PromptInput onSubmit={handleSubmit} className="border border-border/50 rounded-2xl bg-card/50 backdrop-blur-sm shadow-lg">
+              <PromptInputBody>
+                <PromptInputTextarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={connected ? (canAbort ? "Generating..." : "Message Cortana...") : "Connecting..."}
+                  disabled={!connected || canAbort}
+                  className="min-h-[52px]"
+                />
+              </PromptInputBody>
+              <PromptInputFooter>
+                <PromptInputTools />
+                <PromptInputSubmit
+                  disabled={!connected || (!input.trim() && !canAbort)}
+                  status={status === "streaming" ? "streaming" : status === "submitted" ? "submitted" : undefined}
+                  onStop={abort}
+                />
+              </PromptInputFooter>
+            </PromptInput>
+            <p className="text-center text-xs text-muted-foreground/50 mt-3">
+              Cortana can make mistakes. Consider checking important information.
+            </p>
+          </div>
+        </div>
       </main>
     </div>
   );

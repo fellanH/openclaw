@@ -49,6 +49,13 @@
 |------|--------|-------------|
 | **Rebrand to Cortana** | ✅ Done | Package names, comments, docs updated. Internal hook names (`useOpenClawChat`) retained for compatibility. |
 
+### 🐛 Known Bugs
+
+| Bug | Description |
+|-----|-------------|
+| **Subagent tree nesting** | Subagents always appear under main session instead of nesting under their actual parent session |
+| **Duplicate sparkle icon** | Old lucide sparkle icon still shows in session tree items — should be removed now that new icons were added |
+
 ### 💡 Feature Ideas
 
 | Idea | Description |
