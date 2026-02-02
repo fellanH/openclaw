@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
 
+/** idle = calm pulse; thinking/speaking are for future wiring to chat state. */
 export type LogoState = "idle" | "thinking" | "speaking";
 
 interface OriginLogoProps {
