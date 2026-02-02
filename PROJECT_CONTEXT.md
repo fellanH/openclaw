@@ -40,12 +40,37 @@
 | Tasks 1-7 | ✅ Complete |
 | Task 8: Delete old SubagentCard | 🔲 Pending (5 min) |
 
+## Current Goals (Feb 2026)
+
+### Goal 1: Stabilize Foundation (1-2 days)
+Fix critical bugs before building more features.
+
+- [ ] Fix U1: History/WebSocket race condition (queue events during load)
+- [ ] Fix U3: Double persistence bug  
+- [ ] Fix U4: Extract god component → `ChatProvider` context
+- [ ] Fix B2: Memory leak in subagent registry (add TTL fallback)
+
+### Goal 2: Visual Ralph-Loop MVP (3-5 days)
+The force multiplier — Origin orchestrating other projects.
+
+- [ ] Task queue UI — define multiple tasks, spawn as subagents
+- [ ] Batch spawning — "run these 5 tasks in parallel"
+- [ ] Progress dashboard — overview of running/queued/completed tasks
+- [ ] Import from ROADMAP.md — parse tasks into spawn queue
+
+### Goal 3: Agent Project Configs
+Auto-configure spawned agents per project.
+
+- [ ] Design spec (file format, discovery, inheritance)
+- [ ] Implement config reading in spawn flow
+- [ ] Test with 2-3 project types
+
+---
+
 ## Pickup
 
-- [ ] Complete Task 8 (delete subagent-card.tsx) — 5 min
-- [ ] Quick wins from code review — see `REVIEW-2026-02-02.md`
-- [ ] State management fixes (Batch 1) — critical race conditions
-- [ ] Component architecture refactor (Batch 2) — ChatProvider context
+- [ ] Start Goal 1 — see `REVIEW-2026-02-02.md` for details
+- [ ] Quick wins from code review — see `TASKS-QUICK-WINS.md`
 
 ## Key Files
 

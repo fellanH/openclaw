@@ -557,6 +557,11 @@ export function useOpenClawChat(
   const streamingContentRef = useRef<string>("");
   const sessionKeyRef = useRef<string>(sessionKey);
   const messagesRef = useRef<ChatMessage[]>(messages);
+  
+  // Event queue for race condition fix (U1)
+  // Queue events that arrive while history is loading, replay after
+  const historyLoadingRef = useRef<boolean>(false);
+  const eventQueueRef = useRef<GatewayEventFrame[]>([]);
 
   // Keep refs in sync
   useEffect(() => {
@@ -582,6 +587,8 @@ export function useOpenClawChat(
     setCurrentRunId(null);
     setError(null);
     setHistoryLoading(true);
+    historyLoadingRef.current = true;
+    eventQueueRef.current = []; // Clear any stale queued events
 
     // First, load from local storage (instant)
     const localMessages = getLocalMessages(sessionKey);
@@ -634,10 +641,12 @@ export function useOpenClawChat(
           client.setVerboseLevel(sessionKey, "on").catch(() => {});
         })
         .finally(() => {
+          historyLoadingRef.current = false;
           setHistoryLoading(false);
         });
     } else {
       // No client, finish loading
+      historyLoadingRef.current = false;
       setHistoryLoading(false);
     }
   }, [client, sessionKey]);
@@ -674,143 +683,167 @@ export function useOpenClawChat(
     return "";
   };
 
+  // Process a single chat event (extracted for reuse in queue processing)
+  const processChatEvent = useCallback((evt: GatewayEventFrame) => {
+    const payload = evt.payload as {
+      state?: "delta" | "final" | "aborted" | "error";
+      runId?: string;
+      sessionKey?: string;
+      message?: unknown;
+      errorMessage?: string;
+    } | undefined;
+    
+    if (!payload) return;
+    
+    // Only handle events for our session (use ref to avoid stale closure)
+    if (payload.sessionKey && payload.sessionKey !== sessionKeyRef.current) return;
+
+    switch (payload.state) {
+      case "delta":
+        setStatus("streaming");
+        const deltaText = extractText(payload.message);
+        if (deltaText) {
+          setStreamingContent(deltaText);
+          streamingContentRef.current = deltaText;
+        }
+        break;
+
+      case "final":
+        // Finalize the streaming message (use ref to get latest streaming content)
+        const finalText = streamingContentRef.current || extractText(payload.message);
+        // Extract structured parts from final message
+        const finalParts = extractParts(payload.message);
+
+        if (finalText || finalParts) {
+          const assistantMsg: ChatMessage = {
+            id: `assistant-${Date.now()}`,
+            role: "assistant",
+            content: finalText,
+            parts: finalParts,
+            timestamp: Date.now(),
+          };
+          setMessages((prev) => [...prev, assistantMsg]);
+          // Persist to local storage (include parts)
+          addLocalMessage(sessionKeyRef.current, {
+            id: assistantMsg.id,
+            role: assistantMsg.role,
+            content: assistantMsg.content,
+            parts: finalParts?.map(toStoredPart),
+            timestamp: assistantMsg.timestamp!,
+          });
+
+          // Auto-name session from first user message if label is generic
+          const currentSession = getLocalSessions().find(
+            (s) => s.key === sessionKeyRef.current
+          );
+          if (currentSession && isGenericSessionLabel(currentSession.label)) {
+            // Find first user message
+            const allMessages = [...messagesRef.current, assistantMsg];
+            const firstUserMsg = allMessages.find((m) => m.role === "user");
+            if (firstUserMsg?.content) {
+              const autoLabel = generateLabelFromContent(firstUserMsg.content);
+              updateSessionLabel(sessionKeyRef.current, autoLabel);
+            }
+          }
+
+          // Notify parent that a message was completed (for sidebar refresh)
+          onMessageSent?.();
+
+          // Check if this is a subagent announce (contains sessionKey pattern)
+          const announceMatch = finalText.match(/sessionKey:\s*(agent:\w+:subagent:[\w-]+)/i);
+          if (announceMatch) {
+            const childKey = announceMatch[1];
+            setSubagents((prev) => {
+              const next = new Map(prev);
+              for (const [id, sub] of next) {
+                if (sub.childSessionKey === childKey && sub.status === "running") {
+                  const isError = /Status:\s*error/i.test(finalText);
+                  const isTimeout = /Status:\s*timeout/i.test(finalText);
+                  next.set(id, {
+                    ...sub,
+                    status: isError ? "error" : isTimeout ? "timeout" : "completed",
+                    completedAt: Date.now(),
+                  });
+                  break;
+                }
+              }
+              return next;
+            });
+          }
+        }
+        setStreamingContent("");
+        streamingContentRef.current = "";
+        setStatus("idle");
+        setCurrentRunId(null);
+        break;
+
+      case "aborted":
+        // Keep partial content if any (use ref)
+        const abortedContent = streamingContentRef.current;
+        // Try to extract parts from aborted message
+        const abortedParts = extractParts(payload.message);
+
+        if (abortedContent || abortedParts) {
+          const abortedMsg: ChatMessage = {
+            id: `assistant-${Date.now()}`,
+            role: "assistant",
+            content: abortedContent ? abortedContent + "\n\n[Aborted]" : "[Aborted]",
+            parts: abortedParts,
+            timestamp: Date.now(),
+          };
+          setMessages((prev) => [...prev, abortedMsg]);
+          // Persist to local storage (include parts if available)
+          addLocalMessage(sessionKeyRef.current, {
+            id: abortedMsg.id,
+            role: abortedMsg.role,
+            content: abortedMsg.content,
+            parts: abortedParts?.map(toStoredPart),
+            timestamp: abortedMsg.timestamp!,
+          });
+        }
+        setStreamingContent("");
+        streamingContentRef.current = "";
+        setStatus("idle");
+        setCurrentRunId(null);
+        break;
+
+      case "error":
+        setError(payload.errorMessage ?? "Unknown error");
+        setStreamingContent("");
+        streamingContentRef.current = "";
+        setStatus("error");
+        setCurrentRunId(null);
+        break;
+    }
+  }, [onMessageSent]);
+
   // Subscribe to chat events
   useEffect(() => {
     const unsubscribe = subscribe("chat", (evt) => {
-      const payload = evt.payload as {
-        state?: "delta" | "final" | "aborted" | "error";
-        runId?: string;
-        sessionKey?: string;
-        message?: unknown;
-        errorMessage?: string;
-      } | undefined;
-      
-      if (!payload) return;
-      
-      // Only handle events for our session (use ref to avoid stale closure)
-      if (payload.sessionKey && payload.sessionKey !== sessionKeyRef.current) return;
-
-      switch (payload.state) {
-        case "delta":
-          setStatus("streaming");
-          const deltaText = extractText(payload.message);
-          if (deltaText) {
-            setStreamingContent(deltaText);
-            streamingContentRef.current = deltaText;
-          }
-          break;
-
-        case "final":
-          // Finalize the streaming message (use ref to get latest streaming content)
-          const finalText = streamingContentRef.current || extractText(payload.message);
-          // Extract structured parts from final message
-          const finalParts = extractParts(payload.message);
-
-          if (finalText || finalParts) {
-            const assistantMsg: ChatMessage = {
-              id: `assistant-${Date.now()}`,
-              role: "assistant",
-              content: finalText,
-              parts: finalParts,
-              timestamp: Date.now(),
-            };
-            setMessages((prev) => [...prev, assistantMsg]);
-            // Persist to local storage (include parts)
-            addLocalMessage(sessionKeyRef.current, {
-              id: assistantMsg.id,
-              role: assistantMsg.role,
-              content: assistantMsg.content,
-              parts: finalParts?.map(toStoredPart),
-              timestamp: assistantMsg.timestamp!,
-            });
-
-            // Auto-name session from first user message if label is generic
-            const currentSession = getLocalSessions().find(
-              (s) => s.key === sessionKeyRef.current
-            );
-            if (currentSession && isGenericSessionLabel(currentSession.label)) {
-              // Find first user message
-              const allMessages = [...messagesRef.current, assistantMsg];
-              const firstUserMsg = allMessages.find((m) => m.role === "user");
-              if (firstUserMsg?.content) {
-                const autoLabel = generateLabelFromContent(firstUserMsg.content);
-                updateSessionLabel(sessionKeyRef.current, autoLabel);
-              }
-            }
-
-            // Notify parent that a message was completed (for sidebar refresh)
-            onMessageSent?.();
-
-            // Check if this is a subagent announce (contains sessionKey pattern)
-            const announceMatch = finalText.match(/sessionKey:\s*(agent:\w+:subagent:[\w-]+)/i);
-            if (announceMatch) {
-              const childKey = announceMatch[1];
-              setSubagents((prev) => {
-                const next = new Map(prev);
-                for (const [id, sub] of next) {
-                  if (sub.childSessionKey === childKey && sub.status === "running") {
-                    const isError = /Status:\s*error/i.test(finalText);
-                    const isTimeout = /Status:\s*timeout/i.test(finalText);
-                    next.set(id, {
-                      ...sub,
-                      status: isError ? "error" : isTimeout ? "timeout" : "completed",
-                      completedAt: Date.now(),
-                    });
-                    break;
-                  }
-                }
-                return next;
-              });
-            }
-          }
-          setStreamingContent("");
-          streamingContentRef.current = "";
-          setStatus("idle");
-          setCurrentRunId(null);
-          break;
-
-        case "aborted":
-          // Keep partial content if any (use ref)
-          const abortedContent = streamingContentRef.current;
-          // Try to extract parts from aborted message
-          const abortedParts = extractParts(payload.message);
-
-          if (abortedContent || abortedParts) {
-            const abortedMsg: ChatMessage = {
-              id: `assistant-${Date.now()}`,
-              role: "assistant",
-              content: abortedContent ? abortedContent + "\n\n[Aborted]" : "[Aborted]",
-              parts: abortedParts,
-              timestamp: Date.now(),
-            };
-            setMessages((prev) => [...prev, abortedMsg]);
-            // Persist to local storage (include parts if available)
-            addLocalMessage(sessionKeyRef.current, {
-              id: abortedMsg.id,
-              role: abortedMsg.role,
-              content: abortedMsg.content,
-              parts: abortedParts?.map(toStoredPart),
-              timestamp: abortedMsg.timestamp!,
-            });
-          }
-          setStreamingContent("");
-          streamingContentRef.current = "";
-          setStatus("idle");
-          setCurrentRunId(null);
-          break;
-
-        case "error":
-          setError(payload.errorMessage ?? "Unknown error");
-          setStreamingContent("");
-          streamingContentRef.current = "";
-          setStatus("error");
-          setCurrentRunId(null);
-          break;
+      // Queue events if history is still loading (race condition fix - U1)
+      if (historyLoadingRef.current) {
+        eventQueueRef.current.push(evt);
+        return;
       }
+      
+      processChatEvent(evt);
     });
 
     return unsubscribe;
-  }, [subscribe]); // Removed sessionKey and streamingContent from deps - using refs instead
+  }, [subscribe, processChatEvent]);
+
+  // Process queued events after history finishes loading (race condition fix - U1)
+  useEffect(() => {
+    if (!historyLoading && eventQueueRef.current.length > 0) {
+      // Process all queued events in order
+      const queuedEvents = eventQueueRef.current;
+      eventQueueRef.current = [];
+      
+      for (const evt of queuedEvents) {
+        processChatEvent(evt);
+      }
+    }
+  }, [historyLoading, processChatEvent]);
 
   // ============================================================================
   // STREAM 2: Agent Events (structured tool/lifecycle data)
