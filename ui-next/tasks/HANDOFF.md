@@ -1,0 +1,96 @@
+# UI Refactor — Handoff Document
+
+> Context for agents working on the Origin UI refactoring project.
+
+## Project Overview
+
+**Goal:** Refactor the Origin chat UI from a prototype to a production-ready, snappy interface.
+
+**Repository:** `/Users/admin/dev/origin/ui-next`  
+**Main roadmap:** `../REFACTOR-ROADMAP.md`
+
+## Current State (2026-02-02)
+
+The UI works but has performance issues:
+- Messages jump/animate on history load
+- Session switching feels slow
+- State management has too many subscriptions
+- God component (page.tsx, 676 lines)
+- Streaming has double-bubble issue
+
+### Key Files
+
+| File | Lines | Role |
+|------|-------|------|
+| `src/app/page.tsx` | 676 | Main page (god component) |
+| `src/lib/session-store.ts` | 895 | Zustand state management |
+| `src/lib/use-gateway.ts` | 1335 | WebSocket + legacy hooks |
+| `src/lib/use-session.ts` | 352 | Session hooks |
+| `src/components/ai-elements/prompt-input.tsx` | 1263 | Input component |
+
+### Architecture
+
+```
+Gateway (WebSocket)
+    ↓
+use-gateway.ts (connection, events)
+    ↓
+session-store.ts (Zustand store)
+    ↓
+use-session.ts (React hooks)
+    ↓
+page.tsx + components (render)
+```
+
+## Completed Tasks
+
+### Task 1: Audit use-gateway.ts (2026-02-02)
+
+Audited `src/lib/use-gateway.ts` (1335 lines) to identify used vs deprecated code.
+
+**Findings:**
+- **USED (keep):** `useGateway`, `useSessionStats` — used by `page.tsx`
+- **DEPRECATED (remove):** `useOpenClawChat` (~800 lines) — replaced by `useSessionChat` from `use-session.ts`
+- **DUPLICATED types:** `MessagePart`, `ChatMessage`, `ToolExecutionState`, `SubagentState`, `ChatStatus` — also defined in `session-store.ts`
+- **INTERNAL helpers:** 5 functions only used by `useOpenClawChat`
+
+**Recommendation:** Remove `useOpenClawChat` and duplicated types. After cleanup, file should shrink from ~1335 to ~200 lines.
+
+**Output:** `tasks/AUDIT-use-gateway.md`
+
+## In Progress
+
+*None*
+
+## Task Dependencies
+
+See REFACTOR-ROADMAP.md for full dependency graph.
+
+**Phase 1** (sequential): 1.1 → 1.2 → 1.3  
+**Phase 2+** (parallel tracks): See roadmap
+
+## Guidelines for Agents
+
+1. **Always check imports** — Moving code breaks imports
+2. **Run `pnpm build`** — Must pass after each task
+3. **Test in browser** — `pnpm dev` and verify functionality
+4. **Small commits** — One commit per task
+5. **Update this file** — Add completed task summary
+
+## Commands
+
+```bash
+cd /Users/admin/dev/origin/ui-next
+pnpm build      # TypeScript check
+pnpm dev        # Dev server (localhost:3000)
+pnpm lint       # Lint check
+```
+
+## Known Issues
+
+- External agents list component was added but gateway build needed (separate build)
+- See REVIEW-2026-02-02.md for code review findings
+
+---
+
+*Last updated: 2026-02-02 23:00*
