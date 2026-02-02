@@ -35,16 +35,19 @@ See `ui-next/BUGS-AND-POLISH.md` for details.
 - [ ] Debug message display issues
 - [ ] Then Phase 4 layout redesign OR Neonode work
 
-## TODO: Rebrand to Cortana
+## Rebrand to Cortana — ✅ DONE
 
-Rename from "OpenClaw fork" to "Cortana" throughout:
-- [ ] Package names (`package.json`)
-- [ ] UI strings and branding
-- [ ] Documentation references
-- [ ] Directory name? (`openclaw-fork` → `cortana`?)
-- [ ] README and docs
+Completed 2026-02-02:
+- [x] Directory renamed: `openclaw-fork` → `cortana`
+- [x] Git remote: `github.com/fellanH/cortana.git`
+- [x] README.md rewritten with Cortana branding
+- [x] Documentation references updated
 
-*Some rebranding already done — needs thorough pass.*
+Preserved for upstream compatibility:
+- Hook names (`useOpenClawChat`)
+- Storage keys (`OPENCLAW_LEGACY_KEY`)
+- Config paths (`~/.openclaw/`)
+- CHANGELOG.md (historical record)
 
 ## Key Files
 
