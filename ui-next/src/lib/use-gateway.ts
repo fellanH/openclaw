@@ -210,6 +210,14 @@ function parseHistoryMessage(msg: unknown, index: number): ChatMessage {
 
   if (Array.isArray(content)) {
     for (const block of content) {
+      // Skip non-object blocks (defensive: prevents malformed data from causing issues)
+      if (typeof block !== "object" || block === null) {
+        if (process.env.NODE_ENV === "development") {
+          console.warn("[parseHistoryMessage] Unexpected non-object content block:", block);
+        }
+        continue;
+      }
+
       const b = block as Record<string, unknown>;
       const blockType = String(b.type ?? "").toLowerCase();
 
@@ -218,6 +226,8 @@ function parseHistoryMessage(msg: unknown, index: number): ChatMessage {
           if (typeof b.text === "string") {
             parts.push({ type: "text", text: b.text });
             textContent += b.text;
+          } else if (process.env.NODE_ENV === "development" && b.text !== undefined) {
+            console.warn("[parseHistoryMessage] Text block with non-string text:", b.text);
           }
           break;
 
@@ -246,6 +256,12 @@ function parseHistoryMessage(msg: unknown, index: number): ChatMessage {
             text: String(b.thinking ?? ""),
           });
           break;
+
+        default:
+          // Unknown block type - log in development
+          if (process.env.NODE_ENV === "development" && blockType) {
+            console.warn("[parseHistoryMessage] Unknown block type:", blockType, block);
+          }
       }
     }
   } else if (typeof content === "string") {
@@ -278,6 +294,14 @@ function extractParts(message: unknown): MessagePart[] | undefined {
   const parts: MessagePart[] = [];
 
   for (const block of content) {
+    // Skip non-object blocks (defensive: prevents malformed data from causing issues)
+    if (typeof block !== "object" || block === null) {
+      if (process.env.NODE_ENV === "development") {
+        console.warn("[extractParts] Unexpected non-object content block:", block);
+      }
+      continue;
+    }
+
     const b = block as Record<string, unknown>;
     const blockType = String(b.type ?? "").toLowerCase();
 
@@ -572,7 +596,13 @@ export function useOpenClawChat(
     if (Array.isArray(msg.content)) {
       return msg.content
         .map((block: unknown) => {
-          if (typeof block === "string") return block;
+          // Skip non-object blocks (defensive: shouldn't happen, but prevents stray data)
+          if (typeof block !== "object" || block === null) {
+            if (process.env.NODE_ENV === "development") {
+              console.warn("[extractText] Unexpected non-object content block:", block);
+            }
+            return "";
+          }
           const b = block as Record<string, unknown>;
           if (b.type === "text" && typeof b.text === "string") return b.text;
           return "";
