@@ -21,7 +21,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { ArtifactActions, ArtifactAction } from "@/components/ai-elements/artifact";
-import type { SubagentState } from "@/lib/use-gateway";
+import type { SubagentState } from "@/lib/use-session";
 
 export type HistoryMessage = {
   role: "user" | "assistant";

@@ -24,7 +24,7 @@ The UI works but has performance issues:
 |------|-------|------|
 | `src/app/page.tsx` | 676 | Main page (god component) |
 | `src/lib/session-store.ts` | 895 | Zustand state management |
-| `src/lib/use-gateway.ts` | 1335 | WebSocket + legacy hooks |
+| `src/lib/use-gateway.ts` | 217 | WebSocket connection + stats |
 | `src/lib/use-session.ts` | 352 | Session hooks |
 | `src/components/ai-elements/prompt-input.tsx` | 1263 | Input component |
 
@@ -57,6 +57,28 @@ Audited `src/lib/use-gateway.ts` (1335 lines) to identify used vs deprecated cod
 **Recommendation:** Remove `useOpenClawChat` and duplicated types. After cleanup, file should shrink from ~1335 to ~200 lines.
 
 **Output:** `tasks/AUDIT-use-gateway.md`
+
+### Task 2: Remove Deprecated use-gateway Exports (2026-02-02)
+
+Removed deprecated code from `src/lib/use-gateway.ts` based on Task 1 audit.
+
+**Removed:**
+- `useOpenClawChat` hook (~800 lines)
+- 5 duplicated type definitions (`MessagePart`, `ChatMessage`, `ToolExecutionState`, `SubagentState`, `ChatStatus`)
+- 4 internal helper functions (`normalizeRole`, `toStoredPart`, `parseHistoryMessage`, `extractParts`)
+
+**Updated imports** in 3 consumer files to use `@/lib/use-session` instead:
+- `src/components/ai-elements/message-parts.tsx`
+- `src/components/ai-elements/subagent-artifact.tsx`
+- `src/components/activity-bar.tsx`
+
+**Kept:**
+- `useGateway` — Core WebSocket connection hook
+- `useSessionStats` — Token usage tracking hook
+
+**Result:** File reduced from 1335 → 217 lines (84% reduction)
+
+**Output:** `tasks/task-2.md`
 
 ## In Progress
 
@@ -93,4 +115,4 @@ pnpm lint       # Lint check
 
 ---
 
-*Last updated: 2026-02-02 23:00*
+*Last updated: 2026-02-02*

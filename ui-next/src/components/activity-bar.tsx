@@ -4,7 +4,7 @@ import type {
 	ChatStatus,
 	SubagentState,
 	ToolExecutionState,
-} from "@/lib/use-gateway";
+} from "@/lib/use-session";
 import { Loader } from "@/components/ai-elements/loader";
 import { BotIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";

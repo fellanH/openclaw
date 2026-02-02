@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { MessagePart, ToolExecutionState, SubagentState } from "@/lib/use-gateway";
+import type { MessagePart, ToolExecutionState, SubagentState } from "@/lib/use-session";
 import { MessageResponse } from "./message";
 import {
   Reasoning,

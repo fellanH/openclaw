@@ -8,13 +8,14 @@ import {
   useSessionField,
   type ChatMessage,
   type ChatStatus,
+  type MessagePart,
   type ToolExecutionState,
   type SubagentState,
   type SessionData,
 } from "./session-store";
 
 // Re-export types for convenience
-export type { ChatMessage, ChatStatus, ToolExecutionState, SubagentState, SessionData };
+export type { ChatMessage, ChatStatus, MessagePart, ToolExecutionState, SubagentState, SessionData };
 export { useSession, useSessionField };
 
 /**
