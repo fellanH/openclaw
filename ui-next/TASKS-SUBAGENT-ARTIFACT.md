@@ -24,7 +24,7 @@ Replace the current `subagent-card.tsx` with a new `SubagentArtifact` component 
 
 ## Task 1: Create SubagentArtifact Base Component
 
-**Status:** PENDING
+**Status:** COMPLETE ✅
 
 **Goal:** Create the new component file with basic structure using Agent/Artifact patterns.
 
@@ -32,24 +32,26 @@ Replace the current `subagent-card.tsx` with a new `SubagentArtifact` component 
 - `src/components/ai-elements/subagent-artifact.tsx`
 
 **Acceptance criteria:**
-- [ ] Component renders with Agent-style header (icon, label, model badge)
-- [ ] Status badge shows current state (spawning/running/completed/error/timeout)
-- [ ] Status colors: blue (spawning), yellow (running), green (done), red (error), orange (timeout)
-- [ ] Live elapsed time counter (updates every second while active)
-- [ ] Uses Artifact container styling (border, shadow, sections)
-- [ ] Accepts same props as current SubagentCard (SubagentState + callbacks)
-- [ ] Exports as named export
+- [x] Component renders with Agent-style header (icon, label, model badge)
+- [x] Status badge shows current state (spawning/running/completed/error/timeout)
+- [x] Status colors: blue (spawning), yellow (running), green (done), red (error), orange (timeout)
+- [x] Live elapsed time counter (updates every second while active)
+- [x] Uses Artifact container styling (border, shadow, sections)
+- [x] Accepts same props as current SubagentCard (SubagentState + callbacks)
+- [x] Exports as named export
 
 **Notes:**
 - Look at `subagent-card.tsx` for the statusConfig pattern
 - Use `Agent` header style but don't need full Agent component (no tools/instructions)
 - Keep the expand/collapse behavior from current implementation
 
+**Completed:** 2026-02-02 — Includes collapsible TaskDescription with show more/less toggle
+
 ---
 
 ## Task 2: Add Task Description Section
 
-**Status:** PENDING
+**Status:** COMPLETE ✅
 **Depends on:** Task 1
 
 **Goal:** Add collapsible task description section below header.
@@ -58,10 +60,12 @@ Replace the current `subagent-card.tsx` with a new `SubagentArtifact` component 
 - `src/components/ai-elements/subagent-artifact.tsx`
 
 **Acceptance criteria:**
-- [ ] Task description shows in a muted background section
-- [ ] Long tasks (>100 chars) are truncated with "Show more" toggle
-- [ ] Collapsed by default when completed, expanded when running
-- [ ] Uses consistent typography with Agent instructions style
+- [x] Task description shows in a muted background section
+- [x] Long tasks (>100 chars) are truncated with "Show more" toggle
+- [x] Collapsed by default when completed, expanded when running
+- [x] Uses consistent typography with Agent instructions style
+
+**Completed:** 2026-02-02 — Implemented as TaskDescription sub-component with maxLength prop
 
 ---
 
@@ -193,6 +197,19 @@ Replace the current `subagent-card.tsx` with a new `SubagentArtifact` component 
 - [ ] No remaining imports of SubagentCard
 - [ ] No TypeScript errors
 - [ ] All subagent functionality works with new component
+
+---
+
+## Build & Deploy Instructions
+
+**The UI runs in production mode.** After completing each task:
+
+1. **Run `pnpm build`** — Verify no TypeScript/build errors
+2. **If build passes** — Felix can refresh browser to see changes
+3. **If changes don't appear** — May need to restart the production server
+4. **If still issues** — Clear `.next` cache: `rm -rf .next && pnpm build`
+
+**Always run `pnpm build` before marking a task complete!**
 
 ---
 
