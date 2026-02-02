@@ -137,6 +137,62 @@ Fixed the "double bubble" streaming issue by making streaming content render inl
 
 **Output:** `tasks/task-4.md`
 
+### Task 5: Create ChatProvider Context (2026-02-02)
+
+Created `ChatProvider` context to extract session state management from `page.tsx` into a dedicated provider.
+
+**Implementation:**
+- Created `src/components/chat-provider.tsx` with full session management
+- Uses `useSessionData` hook (from Task 3) for optimized Zustand subscription
+- Provides all session data: messages, status, streamingContent, error, historyLoading, historyLoaded, toolExecutions, subagents, messageQueue
+- Provides derived state: isStreaming, isSubmitted, canAbort, queueLength
+- Provides actions: sendMessage, abort, regenerate, stopSubagent
+- Handles history loading, session touch (LRU), message queue processing, and completion notifications
+
+**API:**
+```typescript
+import { ChatProvider, useChatContext } from "@/components/chat-provider";
+
+// Wrap component tree
+<ChatProvider
+  client={gatewayClient}
+  sessionKey="agent:main:main"
+  onMessageSent={() => console.log("sent")}
+>
+  <YourChatComponent />
+</ChatProvider>
+
+// Access context in descendants
+const {
+  // Identity
+  sessionKey,
+  // Data
+  messages,
+  status,
+  streamingContent,
+  error,
+  historyLoading,
+  historyLoaded,
+  toolExecutions,
+  subagents,
+  messageQueue,
+  // Derived
+  isStreaming,
+  isSubmitted,
+  canAbort,
+  queueLength,
+  // Actions
+  sendMessage,
+  abort,
+  regenerate,
+  stopSubagent,
+} = useChatContext();
+```
+
+**Also exported:** `useChatContextOptional()` — non-throwing version for conditional usage.
+
+**Output:** `tasks/task-5.md`
+
 ## In Progress
 
 *None*
