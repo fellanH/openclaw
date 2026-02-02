@@ -85,7 +85,21 @@ Origin is OpenClaw with a **polished, transparent UI** — making agent behavior
 - [ ] **Status colors** — Blue (spawning), Yellow (running), Green (done), Red (error)
 - [ ] **Parent→child indication** — Subtle connector or indent
 
-### 1.2 Message Display Bugs
+### 1.2 Sidebar Subagent Nesting (Verify/Polish)
+
+> Tree logic exists but needs verification that it works correctly.
+
+- [ ] **Verify subagents nest under parent** — Spawn a subagent, confirm it appears nested in sidebar
+- [ ] **Expand/collapse parent** — Collapsing parent should hide children
+- [ ] **Visual hierarchy** — Proper indentation, connector lines or icons
+- [ ] **Click to switch** — Clicking subagent session switches to that conversation
+- [ ] **Status indicators** — Show running/completed status in tree
+
+**If broken:** Check `buildSessionTree()` in `session-utils.ts` and `SessionTreeItem` rendering.
+
+---
+
+### 1.3 Message Display Bugs
 - [ ] **Stray brackets bug** — Investigate intermittent `]` and raw text display
 - [ ] **Add dev console warnings** — Surface malformed data early
 - [ ] **Error boundaries** — Graceful fallbacks for rendering errors

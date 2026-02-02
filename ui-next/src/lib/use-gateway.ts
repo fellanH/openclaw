@@ -33,6 +33,17 @@ export type MessagePart =
       name: string;
       result?: unknown;
       isError?: boolean;
+    }
+  | {
+      type: "subagent";
+      toolCallId: string;
+      task: string;
+      label?: string;
+      model?: string;
+      status: "completed" | "error" | "timeout";
+      duration: number;
+      resultSummary?: string;
+      childSessionKey?: string;
     };
 
 export type ChatMessage = {
@@ -194,6 +205,18 @@ function toStoredPart(part: MessagePart): StoredMessagePart {
           : undefined,
         isError: part.isError,
       };
+    case "subagent":
+      return {
+        type: "subagent",
+        toolCallId: part.toolCallId,
+        task: part.task,
+        label: part.label,
+        model: part.model,
+        status: part.status,
+        duration: part.duration,
+        resultSummary: part.resultSummary,
+        childSessionKey: part.childSessionKey,
+      };
   }
 }
 
@@ -259,6 +282,23 @@ function parseHistoryMessage(msg: unknown, index: number): ChatMessage {
           parts.push({
             type: "reasoning",
             text: String(b.thinking ?? ""),
+          });
+          break;
+
+        case "subagent":
+          // Restore persisted subagent from history
+          parts.push({
+            type: "subagent",
+            toolCallId: String(b.toolCallId ?? ""),
+            task: String(b.task ?? ""),
+            label: typeof b.label === "string" ? b.label : undefined,
+            model: typeof b.model === "string" ? b.model : undefined,
+            status: (b.status === "completed" || b.status === "error" || b.status === "timeout")
+              ? b.status
+              : "completed",
+            duration: typeof b.duration === "number" ? b.duration : 0,
+            resultSummary: typeof b.resultSummary === "string" ? b.resultSummary : undefined,
+            childSessionKey: typeof b.childSessionKey === "string" ? b.childSessionKey : undefined,
           });
           break;
 
@@ -932,12 +972,114 @@ export function useOpenClawChat(
     }
   }, [status, toolExecutions.size]);
 
+  // ============================================================================
+  // SUBAGENT PERSISTENCE
+  // When a subagent completes, add it to message.parts for persistence
+  // ============================================================================
+  const persistedSubagentIdsRef = useRef<Set<string>>(new Set());
+
+  // Restore subagents from persisted message parts on history load
+  useEffect(() => {
+    const persistedIds = new Set<string>();
+    
+    for (const msg of messagesRef.current) {
+      if (msg.role === "assistant" && msg.parts) {
+        for (const part of msg.parts) {
+          if (part.type === "subagent") {
+            persistedIds.add(part.toolCallId);
+          }
+        }
+      }
+    }
+    
+    persistedSubagentIdsRef.current = persistedIds;
+  }, [messages]);
+
+  // Persist subagents when they transition to terminal state
+  useEffect(() => {
+    const completedSubagents: SubagentState[] = [];
+    
+    for (const [id, sub] of subagents) {
+      // Check if subagent is in terminal state and not already persisted
+      if (
+        (sub.status === "completed" || sub.status === "error" || sub.status === "timeout") &&
+        sub.completedAt &&
+        !persistedSubagentIdsRef.current.has(id)
+      ) {
+        completedSubagents.push(sub);
+      }
+    }
+    
+    if (completedSubagents.length === 0) return;
+    
+    // Add completed subagents as parts to the latest assistant message
+    // or create a synthetic message if none exists
+    setMessages((prev) => {
+      const next = [...prev];
+      
+      for (const sub of completedSubagents) {
+        // Mark as persisted immediately to prevent duplicate persistence
+        persistedSubagentIdsRef.current.add(sub.toolCallId);
+        
+        const subagentPart: MessagePart = {
+          type: "subagent",
+          toolCallId: sub.toolCallId,
+          task: sub.task,
+          label: sub.label,
+          model: sub.model,
+          status: sub.status as "completed" | "error" | "timeout",
+          duration: sub.completedAt ? sub.completedAt - sub.startedAt : 0,
+          resultSummary: sub.resultSummary,
+          childSessionKey: sub.childSessionKey,
+        };
+        
+        // Find the most recent assistant message to attach to
+        const lastAssistantIdx = next.findLastIndex((m) => m.role === "assistant");
+        
+        if (lastAssistantIdx >= 0) {
+          // Add to existing message's parts
+          const msg = next[lastAssistantIdx];
+          next[lastAssistantIdx] = {
+            ...msg,
+            parts: [...(msg.parts || []), subagentPart],
+          };
+        } else {
+          // Create a synthetic assistant message for the subagent
+          next.push({
+            id: `assistant-subagent-${Date.now()}`,
+            role: "assistant",
+            content: "",
+            parts: [subagentPart],
+            timestamp: Date.now(),
+          });
+        }
+      }
+      
+      return next;
+    });
+    
+    // Also persist to localStorage
+    // (We need to do this after state update, so use a microtask)
+    Promise.resolve().then(() => {
+      const currentMessages = messagesRef.current;
+      const toStore: StoredMessage[] = currentMessages.map((m) => ({
+        id: m.id,
+        role: m.role,
+        content: m.content,
+        parts: m.parts?.map(toStoredPart),
+        timestamp: m.timestamp ?? Date.now(),
+      }));
+      saveLocalMessages(sessionKeyRef.current, toStore);
+    });
+  }, [subagents]);
+
   // Clear toolExecutions, subagents, and message queue when session changes
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setToolExecutions(new Map());
     setSubagents(new Map());
     setMessageQueue([]);
+    persistedSubagentIdsRef.current = new Set();
   }, [sessionKey]);
 
   const sendMessageInternal = useCallback(

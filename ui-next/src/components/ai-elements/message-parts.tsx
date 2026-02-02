@@ -79,6 +79,16 @@ export function MessageParts({
     );
   }, [parts]);
 
+  // Compute which subagents are already persisted in message.parts
+  const persistedSubagentIds = useMemo(() => {
+    if (!parts) return new Set<string>();
+    return new Set(
+      parts
+        .filter((p) => p.type === "subagent")
+        .map((p) => (p as { toolCallId: string }).toolCallId)
+    );
+  }, [parts]);
+
   // Pending tools: in toolExecutions but NOT in message.parts
   const pendingTools = useMemo(() => {
     if (!toolExecutions) return [];
@@ -86,6 +96,14 @@ export function MessageParts({
       ([id]) => !persistedToolIds.has(id)
     );
   }, [toolExecutions, persistedToolIds]);
+
+  // Pending subagents: in subagents Map but NOT in message.parts
+  const pendingSubagents = useMemo(() => {
+    if (!subagents) return [];
+    return Array.from(subagents.values()).filter(
+      (sub) => !persistedSubagentIds.has(sub.toolCallId)
+    );
+  }, [subagents, persistedSubagentIds]);
 
   // If parts exist, render them
   if (parts && parts.length > 0) {
@@ -157,6 +175,30 @@ export function MessageParts({
               );
             }
 
+            case "subagent": {
+              // Render persisted subagent from message.parts
+              // Convert MessagePart to SubagentState format for SubagentArtifact
+              const persistedSubagent: SubagentState = {
+                toolCallId: part.toolCallId,
+                task: part.task,
+                label: part.label,
+                model: part.model,
+                status: part.status,
+                startedAt: 0, // Not available in persisted format
+                completedAt: part.duration, // Duration is stored, not absolute time
+                childSessionKey: part.childSessionKey,
+                resultSummary: part.resultSummary,
+              };
+              return (
+                <CompactErrorBoundary key={`subagent-${part.toolCallId}`} label="Subagent">
+                  <SubagentArtifact
+                    subagent={persistedSubagent}
+                    onViewHistory={onSubagentViewHistory ? () => onSubagentViewHistory(persistedSubagent) : undefined}
+                  />
+                </CompactErrorBoundary>
+              );
+            }
+
             default:
               // Log unexpected part types in development
               if (process.env.NODE_ENV === "development") {
@@ -191,17 +233,16 @@ export function MessageParts({
             </InlineErrorBoundary>
           ))}
 
-        {/* Render all subagents (including completed) */}
-        {subagents &&
-          Array.from(subagents.values()).map((sub) => (
-            <CompactErrorBoundary key={sub.toolCallId} label="Subagent">
-              <SubagentArtifact
-                subagent={sub}
-                onViewHistory={onSubagentViewHistory ? () => onSubagentViewHistory(sub) : undefined}
-                onStop={onSubagentStop ? () => onSubagentStop(sub) : undefined}
-              />
-            </CompactErrorBoundary>
-          ))}
+        {/* Render PENDING subagents (from live state, not yet persisted in message.parts) */}
+        {pendingSubagents.map((sub) => (
+          <CompactErrorBoundary key={`pending-subagent-${sub.toolCallId}`} label="Subagent">
+            <SubagentArtifact
+              subagent={sub}
+              onViewHistory={onSubagentViewHistory ? () => onSubagentViewHistory(sub) : undefined}
+              onStop={onSubagentStop ? () => onSubagentStop(sub) : undefined}
+            />
+          </CompactErrorBoundary>
+        ))}
       </>
     );
   }
@@ -233,16 +274,15 @@ export function MessageParts({
             </Tool>
           </InlineErrorBoundary>
         ))}
-      {subagents &&
-        Array.from(subagents.values()).map((sub) => (
-          <CompactErrorBoundary key={sub.toolCallId} label="Subagent">
-            <SubagentArtifact
-              subagent={sub}
-              onViewHistory={onSubagentViewHistory ? () => onSubagentViewHistory(sub) : undefined}
-              onStop={onSubagentStop ? () => onSubagentStop(sub) : undefined}
-            />
-          </CompactErrorBoundary>
-        ))}
+      {pendingSubagents.map((sub) => (
+        <CompactErrorBoundary key={`pending-subagent-${sub.toolCallId}`} label="Subagent">
+          <SubagentArtifact
+            subagent={sub}
+            onViewHistory={onSubagentViewHistory ? () => onSubagentViewHistory(sub) : undefined}
+            onStop={onSubagentStop ? () => onSubagentStop(sub) : undefined}
+          />
+        </CompactErrorBoundary>
+      ))}
     </>
   );
 }

@@ -123,6 +123,17 @@ export type StoredMessagePart =
 			name: string;
 			result?: string;
 			isError?: boolean;
+	  }
+	| {
+			type: "subagent";
+			toolCallId: string;
+			task: string;
+			label?: string;
+			model?: string;
+			status: "completed" | "error" | "timeout";
+			duration: number;
+			resultSummary?: string;
+			childSessionKey?: string;
 	  };
 
 export type StoredMessage = {

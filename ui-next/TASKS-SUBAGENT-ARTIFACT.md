@@ -167,25 +167,32 @@ Replace the current `subagent-card.tsx` with a new `SubagentArtifact` component 
 
 ## Task 7: Persist Subagents in Message Parts
 
-**Status:** PENDING
+**Status:** COMPLETE ✅
 **Depends on:** Task 6
 
 **Goal:** Store subagent data in message.parts so they survive reload.
 
-**Files to modify:**
-- `src/lib/use-gateway.ts`
-- `src/lib/storage.ts` (if needed)
+**Files modified:**
+- `src/lib/use-gateway.ts` — Added `subagent` type to MessagePart, persistence logic when subagent completes
+- `src/lib/storage.ts` — Added `subagent` type to StoredMessagePart
+- `src/components/ai-elements/message-parts.tsx` — Render persisted subagents from parts, filter duplicates
 
 **Acceptance criteria:**
-- [ ] When subagent completes, add to message.parts as `type: 'subagent'`
-- [ ] Subagent part includes: toolCallId, task, label, model, status, duration, resultSummary
-- [ ] On history load, restore subagents from message.parts
-- [ ] Subagent artifacts persist across page refresh
-- [ ] No duplicate subagents (live state vs persisted)
+- [x] When subagent completes, add to message.parts as `type: 'subagent'`
+- [x] Subagent part includes: toolCallId, task, label, model, status, duration, resultSummary
+- [x] On history load, restore subagents from message.parts
+- [x] Subagent artifacts persist across page refresh
+- [x] No duplicate subagents (live state vs persisted)
 
-**Notes:**
-- Similar pattern to how tool_use/tool_result are persisted
-- May need to update parseHistoryMessage to extract subagent parts
+**Completed:** 2026-02-02
+
+**Implementation details:**
+- Added `subagent` part type to both `MessagePart` (use-gateway) and `StoredMessagePart` (storage)
+- Added `toStoredPart` conversion for subagent type
+- Added `parseHistoryMessage` case to restore subagents from history
+- Added `persistedSubagentIdsRef` to track already-persisted subagents
+- Effect watches `subagents` Map for terminal states (completed/error/timeout) and persists to message.parts
+- `message-parts.tsx` renders persisted subagents from parts and filters live subagents to exclude persisted ones
 
 ---
 
