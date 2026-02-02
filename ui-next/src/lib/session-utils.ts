@@ -8,7 +8,7 @@
 
 export type ParsedSessionKey = {
   agentId: string;
-  type: "main" | "subagent" | "channel" | "cron" | "hook" | "other";
+  type: "main" | "subagent" | "channel" | "cron" | "hook" | "chat" | "other";
   channelType?: string;  // telegram, discord, etc.
   chatType?: string;     // group, channel, dm
   identifier: string;    // uuid, group id, etc.
@@ -23,10 +23,13 @@ export type Session = {
   reasoningLevel?: string;
   messageCount?: number;
   isLocal?: boolean;
+  /** First user message preview (if available) */
+  preview?: string;
 };
 
 export type SubagentMeta = {
   label?: string;
+  task?: string;
   status?: "spawning" | "running" | "completed" | "error" | "timeout";
   duration?: number;
   model?: string;
@@ -48,13 +51,27 @@ export type SessionTreeNode = {
 export function parseSessionKey(key: string): ParsedSessionKey {
   const parts = key.split(":");
   
-  // agent:main:main
-  if (parts[0] === "agent" && parts.length >= 3 && parts[2] === "main") {
+  // agent:main:main - the primary main session
+  if (parts[0] === "agent" && parts.length === 3 && parts[2] === "main") {
     return {
       agentId: parts[1],
       type: "main",
       identifier: "main",
     };
+  }
+  
+  // agent:main:<shortId> - regular chat sessions (not subagent, not channel pattern)
+  // These are individual chat sessions created via "New Session"
+  if (parts[0] === "agent" && parts.length === 3 && parts[2] !== "main") {
+    // Check if it looks like a short session ID (alphanumeric, typically 8 chars)
+    const identifier = parts[2];
+    if (/^[a-z0-9]+$/i.test(identifier) && identifier.length <= 16) {
+      return {
+        agentId: parts[1],
+        type: "chat",
+        identifier,
+      };
+    }
   }
   
   // agent:main:subagent:uuid
@@ -78,7 +95,16 @@ export function parseSessionKey(key: string): ParsedSessionKey {
     };
   }
   
-  // cron:jobId
+  // agent:cron:* - scheduled tasks
+  if (parts[0] === "agent" && parts.length >= 3 && parts[1] === "cron") {
+    return {
+      agentId: "system",
+      type: "cron",
+      identifier: parts.slice(2).join(":"),
+    };
+  }
+  
+  // cron:jobId (legacy format)
   if (parts[0] === "cron") {
     return {
       agentId: "system",

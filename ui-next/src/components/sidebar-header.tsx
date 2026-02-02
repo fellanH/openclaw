@@ -1,7 +1,8 @@
 "use client";
 
-import { SparklesIcon, SettingsIcon } from "lucide-react";
+import { SettingsIcon } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
+import { CortanaLogo } from "./cortana-logo";
 import {
   Context,
   ContextTrigger,
@@ -70,9 +71,7 @@ export function SidebarHeader({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="relative">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
-              <SparklesIcon className="w-4 h-4 text-white" />
-            </div>
+            <CortanaLogo size={36} state="idle" />
             <div
               className={cn(
                 "absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-card",

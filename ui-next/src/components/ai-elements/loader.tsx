@@ -164,7 +164,7 @@ export const Loader = ({
         transition={{ duration: 0.2 }}
       >
         <AnimatedSpinner size={size} />
-        <span className="text-sm">{label || "Thinking"}<ThinkingDots /></span>
+        <span className="text-sm">{label || "Thinking"} <ThinkingDots /></span>
       </motion.div>
     );
   }

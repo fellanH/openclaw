@@ -1,6 +1,7 @@
 "use client";
 
-import { SparklesIcon, CodeIcon, PenLineIcon, LightbulbIcon, SearchIcon } from "lucide-react";
+import { CodeIcon, PenLineIcon, LightbulbIcon, SearchIcon } from "lucide-react";
+import { CortanaLogo } from "./cortana-logo";
 
 interface EmptyStateProps {
   onSuggestionClick: (text: string) => void;
@@ -61,11 +62,9 @@ export function EmptyState({ onSuggestionClick }: EmptyStateProps) {
     <div className="flex flex-col items-center justify-center h-full text-center px-4 animate-in fade-in duration-500">
       {/* Logo */}
       <div className="relative mb-8">
-        <div className="w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
-          <SparklesIcon className="w-10 h-10 md:w-12 md:h-12 text-white" />
-        </div>
+        <CortanaLogo size={96} state="idle" className="md:scale-110" />
         {/* Subtle glow effect */}
-        <div className="absolute inset-0 w-20 h-20 md:w-24 md:h-24 rounded-3xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 opacity-30 blur-xl -z-10" />
+        <div className="absolute inset-0 rounded-full bg-blue-500/20 blur-2xl -z-10" />
       </div>
 
       {/* Greeting */}

@@ -63,3 +63,27 @@ Rename from "OpenClaw fork" to "Cortana" throughout:
 
 ---
 _Last updated: 2026-02-02 12:47_
+
+---
+
+## Branding Notes (added 2026-02-02)
+
+### Visual Identity Reference
+Based on original Cortana design language:
+
+- **Form:** Two nested circles, animated
+- **Animations:** Indicate states (searching, talking, thinking, idle)
+- **Colors:** 
+  - Background: Black or white
+  - Circles: Shades of blue
+  
+### Animation States to Consider
+- Idle: Subtle pulse
+- Listening: Expanding rings
+- Thinking/Processing: Rotating or morphing
+- Speaking: Wave-like motion
+
+### Implementation Ideas
+- CSS animations for web dashboard
+- Lottie/SVG for smooth cross-platform
+- Keep it minimal — two circles, blue tones, clean
