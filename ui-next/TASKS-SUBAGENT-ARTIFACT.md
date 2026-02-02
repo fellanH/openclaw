@@ -71,7 +71,7 @@ Replace the current `subagent-card.tsx` with a new `SubagentArtifact` component 
 
 ## Task 3: Add Result Summary Section
 
-**Status:** PENDING
+**Status:** COMPLETE ✅
 **Depends on:** Task 1
 
 **Goal:** Show a summary of what the subagent produced when completed.
@@ -81,11 +81,13 @@ Replace the current `subagent-card.tsx` with a new `SubagentArtifact` component 
 - `src/lib/use-gateway.ts` (add resultSummary to SubagentState)
 
 **Acceptance criteria:**
-- [ ] SubagentState type extended with `resultSummary?: string`
-- [ ] Result section only shows when status is completed
-- [ ] Result is extracted from subagent's final assistant message (first 200 chars)
-- [ ] Shows "No result captured" if empty
-- [ ] Styled distinctly from task description (success color tint)
+- [x] SubagentState type extended with `resultSummary?: string`
+- [x] Result section only shows when status is completed
+- [x] Result is extracted from subagent's final assistant message (first 200 chars)
+- [x] Shows "No result captured" if empty
+- [x] Styled distinctly from task description (success color tint)
+
+**Completed:** 2026-02-02 — Added ResultSummary component with green success styling, truncation at 200 chars with expand toggle
 
 **Notes:**
 - The gateway sends subagent completion via `agent` events
