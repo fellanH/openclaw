@@ -104,20 +104,20 @@ Origin is OpenClaw with a **polished, transparent UI** — making agent behavior
 - [ ] **Add dev console warnings** — Surface malformed data early
 - [ ] **Error boundaries** — Graceful fallbacks for rendering errors
 
-### 1.3 Polish Pass
+### 1.4 Polish Pass
 - [ ] **Dark mode contrast** — Verify all components readable
 - [ ] **Spacing consistency** — Audit padding/margins across components
 - [ ] **Activity status bar** — Finish `activity-bar.tsx` component
 - [ ] **Message queueing** — Send while agent is processing
 
-### 1.4 Settings & Controls
+### 1.5 Settings & Controls
 - [ ] **Settings panel** — In sidebar or modal
 - [ ] **Verbose mode toggle** — Show/hide thinking blocks
 - [ ] **Reasoning display toggle** — Collapse by default?
 
 ---
 
-### 1.5 Ralph-Loop Integration Vision
+### 1.6 Ralph-Loop Integration Vision
 
 > Origin's subagent system is essentially a built-in ralph-loop. Let's make it first-class.
 
