@@ -1,7 +1,7 @@
 {
-  "name": "openclaw",
+  "name": "cortana",
   "version": "2026.1.30",
-  "description": "Personal Assistant — neutral, de-branded fork of OpenClaw for non-technical users. Upstream: openclaw/openclaw",
+  "description": "Cortana — Personal AI assistant. Fork of OpenClaw. Upstream: openclaw/openclaw",
   "keywords": [],
   "license": "MIT",
   "author": "",

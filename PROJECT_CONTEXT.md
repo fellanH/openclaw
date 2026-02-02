@@ -12,7 +12,7 @@
 - ✅ Subagent tracking with live status
 - Build passing, ready for testing
 
-**Next up:** Responsive behavior (mobile) or Rebrand pass
+**Next up:** Responsive behavior (mobile)
 
 ## Recent Decisions
 
@@ -25,18 +25,6 @@
 
 - [ ] Test sidebar-centric layout with live gateway
 - [ ] Add responsive behavior (mobile sidebar overlay)
-- [ ] Rebrand pass (package names, UI strings, directory rename)
-
-## TODO: Rebrand to Cortana
-
-Rename from "OpenClaw fork" to "Cortana" throughout:
-- [ ] Package names (`package.json`)
-- [ ] UI strings and branding
-- [ ] Documentation references
-- [ ] Directory name? (`openclaw-fork` → `cortana`?)
-- [ ] README and docs
-
-*Some rebranding already done — needs thorough pass.*
 
 ## Key Files
 

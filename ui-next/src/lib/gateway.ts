@@ -1,5 +1,5 @@
 /**
- * OpenClaw Gateway Client for React
+ * Cortana Gateway Client
  * Connects to the OpenClaw WebSocket gateway and handles chat messaging.
  */
 

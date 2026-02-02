@@ -1,9 +1,9 @@
 /**
  * Storage utilities for Cortana UI
- * Compatible with OpenClaw control UI settings
+ * Falls back to OpenClaw control UI settings for token sharing (legacy compatibility)
  */
 
-const STORAGE_KEY = "openclaw.control.settings.v1";
+const OPENCLAW_LEGACY_KEY = "openclaw.control.settings.v1";
 const CORTANA_KEY = "cortana.settings.v1";
 
 export type CortanaSettings = {
@@ -54,9 +54,9 @@ export function loadSettings(): CortanaSettings {
     // Ignore parse errors
   }
 
-  // Fall back to OpenClaw control UI settings (for token sharing)
+  // Fall back to OpenClaw control UI settings (legacy token sharing)
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(OPENCLAW_LEGACY_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as Record<string, unknown>;
       return {

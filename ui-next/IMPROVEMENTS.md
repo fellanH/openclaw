@@ -39,9 +39,9 @@
 
 ### 🔧 Housekeeping
 
-| Task | Description |
-|------|-------------|
-| **Rebrand to Cortana** | Thorough rename from "OpenClaw fork" → "Cortana" (package.json, UI, docs, directory) |
+| Task | Status | Description |
+|------|--------|-------------|
+| **Rebrand to Cortana** | ✅ Done | Package names, comments, docs updated. Internal hook names (`useOpenClawChat`) retained for compatibility. |
 
 ### 💡 Feature Ideas
 
